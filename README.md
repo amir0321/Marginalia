@@ -41,4 +41,19 @@ _Fylls i när projekten finns (issue 1.1 och Angular-setup)._
 - Uppgifterna hanteras på GitHub Project-tavlan med epics, stories och milstolpar.
 
 ## Antaganden och beslut
-_Fylls i (per användare-data, max 5 citat, hosting, databas, tokenlagring)._# Marginalia
+
+Uppgiften lämnar några saker öppna. Så här tolkade jag dem:
+
+| Fråga | Beslut | Motivering |
+|---|---|---|
+| Ska data vara per användare? | Ja, både böcker och citat | "Mina böcker" och "Mina citat" är personliga. API:t filtrerar på användar-id från token. Någon annans post ger 404. |
+| Är "5 citat" ett tak eller exakt 5? | Tak: 0–5 citat | Kravet att lägga till och ta bort kräver att antalet kan variera. Gränsen kontrolleras både i API och UI. |
+| Autentisering | JWT, giltig i 60 min, ingen refresh token | Räcker för uppgiften. Vid utgången session loggas användaren ut. |
+| Var lagras token? | `localStorage` | Enkelt för en SPA. Avvägning: läsbar vid XSS, men Angular escapar innehåll. Cookie hade krävt CSRF-skydd. |
+| Registrering | Användarnamn + lösenord (min 8 tecken). Unikt användarnamn. | Matchar testets krav. Samma regler i frontend och backend. |
+| Lösenordslagring | Hashas med ASP.NET Core `PasswordHasher` | Aldrig klartext. |
+| Radering | Permanent, med bekräftelsedialog | Enklast, och dialogen minskar risken för misstag. |
+| Hosting och databas | Se "Arkitektur och hosting" ovan | |
+
+**Utanför omfattning:** lösenordsåterställning, e-post, roller, refresh tokens och
+sidindelning.
