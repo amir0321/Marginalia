@@ -1,0 +1,32 @@
+# Operativsystem
+.DS_Store
+Thumbs.db
+
+# Editorer
+.vs/
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.db
+*.sqlite
+
+# Angular / Node
+node_modules/
+dist/
+.angular/
+out-tsc/
+coverage/
+npm-debug.log*
+yarn-error.log
+
+# Hemligheter och lokal konfiguration
+.env
+.env.*
+!.env.example
+appsettings.Local.json
