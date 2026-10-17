@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marginalia.Api", "Marginalia.Api\Marginalia.Api.csproj", "{D75429FF-0CC9-4BBF-A342-8D1336C76973}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Marginalia.Api.Tests", "Marginalia.Api.Tests\Marginalia.Api.Tests.csproj", "{07496304-D6D5-475C-8DC0-889486924926}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D75429FF-0CC9-4BBF-A342-8D1336C76973}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D75429FF-0CC9-4BBF-A342-8D1336C76973}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D75429FF-0CC9-4BBF-A342-8D1336C76973}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D75429FF-0CC9-4BBF-A342-8D1336C76973}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07496304-D6D5-475C-8DC0-889486924926}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07496304-D6D5-475C-8DC0-889486924926}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07496304-D6D5-475C-8DC0-889486924926}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07496304-D6D5-475C-8DC0-889486924926}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
