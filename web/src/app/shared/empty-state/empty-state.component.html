@@ -1,0 +1,8 @@
+<section class="empty-state text-center py-5 px-3" role="status">
+  <div class="empty-state-icon mb-3">
+    <i [class]="icon()" aria-hidden="true"></i>
+  </div>
+  <h2 class="h4 mb-2">{{ title() }}</h2>
+  <p class="text-secondary mx-auto mb-4" style="max-width: 480px;">{{ description() }}</p>
+  <ng-content></ng-content>
+</section>

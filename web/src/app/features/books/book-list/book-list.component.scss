@@ -1,0 +1,21 @@
+.table > :not(caption) > * > * {
+  background-color: transparent;
+  border-bottom-color: var(--border);
+}
+
+.table tr:last-child td {
+  border-bottom-width: 0;
+}
+
+.action-link {
+  font-size: 0.875rem;
+  transition: color 180ms ease;
+
+  &:hover {
+    color: var(--link) !important;
+  }
+
+  &.delete-link:hover {
+    color: var(--semantic-danger) !important;
+  }
+}

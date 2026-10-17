@@ -1,0 +1,81 @@
+.custom-select-trigger {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 10px;
+  min-height: 44px;
+  padding: 8px 14px;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+
+  &:hover {
+    border-color: var(--muted);
+    background-color: var(--surface);
+    color: var(--text);
+  }
+
+  &:focus-visible,
+  &[aria-expanded="true"] {
+    border-color: var(--link);
+    box-shadow: 0 0 0 3px rgba(46, 144, 250, 0.25);
+    background-color: var(--surface);
+    color: var(--text);
+  }
+
+  /* Hide default bootstrap dropdown caret */
+  &::after {
+    display: none !important;
+  }
+}
+
+.select-chevron {
+  font-size: 0.75rem;
+  transition: transform 180ms ease;
+}
+
+.custom-select-dropdown[aria-expanded="true"] .select-chevron,
+:host-context([aria-expanded="true"]) .select-chevron {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(16, 24, 40, 0.12);
+  min-width: 160px;
+  z-index: 1050;
+  margin-top: 4px !important;
+  /* Animate only opacity so Popper coordinates are never overridden */
+  animation: fadeInDropdown 120ms ease;
+}
+
+.dropdown-item {
+  color: var(--text);
+  font-size: 0.875rem;
+  transition: background-color 150ms ease, color 150ms ease;
+
+  &:hover,
+  &:focus {
+    background-color: var(--surface-2);
+    color: var(--text);
+  }
+
+  &.active-item {
+    background-color: var(--surface-2);
+    color: var(--link);
+  }
+}
+
+.check-icon {
+  color: var(--amber);
+  font-size: 0.8rem;
+}
+
+@keyframes fadeInDropdown {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

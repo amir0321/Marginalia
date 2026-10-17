@@ -1,0 +1,131 @@
+<div class="row g-0 min-vh-100">
+  <aside class="d-none d-lg-block col-lg-5 col-xl-5" aria-label="Varumärkesillustration">
+    <app-auth-hero></app-auth-hero>
+  </aside>
+
+  <main class="col-12 col-lg-7 col-xl-7 d-flex flex-column justify-content-between p-4 p-md-5 bg-body">
+    <header class="d-flex d-lg-none justify-content-between align-items-center mb-4">
+      <app-logo></app-logo>
+      <button
+        type="button"
+        class="btn btn-outline-secondary border-0 btn-sm"
+        (click)="theme.toggle()"
+        aria-label="Byt färgtema"
+      >
+        @if (theme.current() === 'dark') {
+          <i class="fa-solid fa-sun" aria-hidden="true"></i>
+        } @else {
+          <i class="fa-solid fa-moon" aria-hidden="true"></i>
+        }
+      </button>
+    </header>
+
+    <section class="m-auto w-100" style="max-width: 440px;" aria-labelledby="registerHeading">
+      <span class="overline">BÖRJA DIN SAMLING</span>
+      <h1 id="registerHeading" class="h2 mb-1">Skapa konto</h1>
+      <p class="text-secondary mb-4">Samla böckerna och orden du vill bära med dig.</p>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+          <label for="username" class="form-label small fw-semibold text-secondary mb-1">
+            Användarnamn <span class="text-danger" aria-hidden="true">*</span>
+          </label>
+          <div class="input-icon-group">
+            <i class="fa-solid fa-user input-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              id="username"
+              class="form-control"
+              formControlName="username"
+              placeholder="bokvan"
+              autocomplete="username"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label small fw-semibold text-secondary mb-1">
+            Lösenord <span class="text-danger" aria-hidden="true">*</span>
+          </label>
+          <div class="input-icon-group">
+            <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
+            <input
+              [type]="showPassword() ? 'text' : 'password'"
+              id="password"
+              class="form-control"
+              formControlName="password"
+              placeholder="••••••••"
+              autocomplete="new-password"
+            />
+            <button
+              type="button"
+              class="password-toggle-btn"
+              (click)="showPassword.set(!showPassword())"
+              [attr.aria-label]="showPassword() ? 'Dölj lösenord' : 'Visa lösenord'"
+            >
+              <i class="fa-solid" [class.fa-eye]="!showPassword()" [class.fa-eye-slash]="showPassword()" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          <div class="password-strength">
+            <div class="strength-bars">
+              <div class="strength-bar" [class.active]="strengthLevel() >= 1"></div>
+              <div class="strength-bar" [class.active]="strengthLevel() >= 2"></div>
+              <div class="strength-bar" [class.active]="strengthLevel() >= 3"></div>
+            </div>
+            <div class="strength-label">
+              Lösenordsstyrka: <span class="fw-medium">{{ strengthText() }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="confirmPassword" class="form-label small fw-semibold text-secondary mb-1">
+            Bekräfta lösenord <span class="text-danger" aria-hidden="true">*</span>
+          </label>
+          <div class="input-icon-group">
+            <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
+            <input
+              [type]="showConfirmPassword() ? 'text' : 'password'"
+              id="confirmPassword"
+              class="form-control"
+              formControlName="confirmPassword"
+              placeholder="Upprepa lösenordet"
+              autocomplete="new-password"
+            />
+            <button
+              type="button"
+              class="password-toggle-btn"
+              (click)="showConfirmPassword.set(!showConfirmPassword())"
+              [attr.aria-label]="showConfirmPassword() ? 'Dölj bekräftat lösenord' : 'Visa bekräftat lösenord'"
+            >
+              <i class="fa-solid" [class.fa-eye]="!showConfirmPassword()" [class.fa-eye-slash]="showConfirmPassword()" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary w-100 py-2 d-flex align-items-center justify-content-center gap-2"
+          [disabled]="form.invalid"
+        >
+          <span>Registrera dig</span>
+          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </button>
+      </form>
+
+      <nav aria-label="Kontoalternativ" class="text-center mt-4 pt-2">
+        <span class="text-secondary small me-1">Har du redan ett konto?</span>
+        <a routerLink="/login" class="small fw-semibold text-decoration-none">
+          Logga in
+        </a>
+      </nav>
+    </section>
+
+    <footer class="text-center mt-4">
+      <small class="text-secondary" style="font-size: 0.75rem;">
+        Marginalia &middot; Ett hem för ord som stannar kvar
+      </small>
+    </footer>
+  </main>
+</div>

@@ -1,0 +1,38 @@
+.dashed-quote-card {
+  border: 2px dashed var(--border) !important;
+  background-color: transparent !important;
+  min-height: 200px;
+  transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
+
+  &:hover {
+    border-color: var(--amber) !important;
+    background-color: var(--surface-2) !important;
+    transform: translateY(-2px);
+  }
+}
+
+.amber-quote-mark {
+  color: var(--amber);
+  font-family: 'Fraunces', Georgia, serif;
+  line-height: 1;
+  display: block;
+}
+
+.quote-action-btn {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--muted);
+
+  &:hover {
+    color: var(--link);
+    background-color: var(--surface-2);
+  }
+
+  &.delete-btn:hover {
+    color: var(--semantic-danger);
+  }
+}
