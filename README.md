@@ -30,7 +30,73 @@ docs/   Designhandbok och beslut
 ```
 
 ## Köra lokalt
-_Fylls i när projekten finns (issue 1.1 och Angular-setup)._
+
+### Förutsättningar
+- Docker Desktop
+- .NET 9 SDK
+- Node.js ≥ 20 och npm
+
+### 1. Starta databasen (PostgreSQL via Docker)
+
+```bash
+docker compose up -d
+```
+
+Databasen `marginalia` startar på port 5432 (användare `postgres`, lösenord `dev`).
+
+### 2. Konfigurera API:t med user-secrets
+
+Navigera till API-projektet och kör:
+
+```bash
+cd api/Marginalia.Api
+
+dotnet user-secrets init
+
+dotnet user-secrets set "ConnectionStrings:Default" \
+  "Host=localhost;Port=5432;Database=marginalia;Username=postgres;Password=dev"
+
+dotnet user-secrets set "Jwt:Key" "ERSÄTT-MED-MINST-32-TECKEN-LÅNG-NYCKEL"
+dotnet user-secrets set "Jwt:Issuer" "marginalia"
+dotnet user-secrets set "Jwt:Audience" "marginalia-web"
+dotnet user-secrets set "Jwt:ExpiresMinutes" "60"
+```
+
+> **OBS:** `Jwt:Key` måste vara minst 32 tecken. Generera t.ex. med:
+> `openssl rand -base64 32`
+
+### 3. Bygg och starta API:t
+
+```bash
+# Fortfarande i api/Marginalia.Api
+dotnet build
+dotnet run
+```
+
+API:t startar på **http://localhost:5080**.  
+Hälsokontroll: `GET http://localhost:5080/api/health` → `{"status":"ok"}`
+
+EF Core kör migrationerna automatiskt vid uppstart.
+
+### 4. Installera och starta frontend
+
+```bash
+cd ../../web
+npm install
+npm start
+```
+
+Frontend startar på **http://localhost:4200**.  
+Alla `/api/*`-anrop proxyas automatiskt till `http://localhost:5080`.
+
+### URL:er lokalt
+
+| Tjänst | URL |
+|---|---|
+| Frontend (Angular) | http://localhost:4200 |
+| API (direkt) | http://localhost:5080/api |
+| Hälsokontroll | http://localhost:5080/api/health |
+| API-dokumentation (Scalar) | http://localhost:5080/scalar |
 
 ## Arbetssätt
 - `main` är alltid fungerande och är det som publiceras.
