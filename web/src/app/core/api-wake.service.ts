@@ -1,12 +1,14 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, DestroyRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ToastService } from './toast.service';
-import { interval, switchMap, takeWhile, timeout, catchError, of } from 'rxjs';
+import { timer, switchMap, takeWhile, timeout, catchError, of } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ApiWakeService {
   private readonly http = inject(HttpClient);
   private readonly toast = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
   wake(): void {
     let bannerShown = false;
@@ -24,8 +26,16 @@ export class ApiWakeService {
       }
     }, 2000);
 
-    interval(3000)
+    this.destroyRef.onDestroy(() => {
+      clearTimeout(slowTimer);
+      if (bannerShown && toastId) {
+        this.toast.dismiss(toastId);
+      }
+    });
+
+    timer(0, 3000)
       .pipe(
+        takeUntilDestroyed(this.destroyRef),
         takeWhile(() => !resolved),
         switchMap(() =>
           this.http.get('/api/health').pipe(

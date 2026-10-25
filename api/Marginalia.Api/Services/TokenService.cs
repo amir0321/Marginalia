@@ -2,20 +2,20 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using Marginalia.Api.Configuration;
 using Marginalia.Api.Models;
 
 namespace Marginalia.Api.Services;
 
-public class TokenService(IConfiguration configuration)
+public class TokenService(JwtSettings jwtSettings)
 {
+    public TokenService(IConfiguration configuration) : this(ApiConfiguration.GetValidatedJwtSettings(configuration))
+    {
+    }
+
     public string CreateToken(User user)
     {
-        var key = configuration["Jwt:Key"]!;
-        var issuer = configuration["Jwt:Issuer"]!;
-        var audience = configuration["Jwt:Audience"]!;
-        var expiresMinutes = int.Parse(configuration["Jwt:ExpiresMinutes"] ?? "60");
-
-        var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+        var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key));
         var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>
@@ -26,10 +26,10 @@ public class TokenService(IConfiguration configuration)
         };
 
         var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
+            issuer: jwtSettings.Issuer,
+            audience: jwtSettings.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(expiresMinutes),
+            expires: DateTime.UtcNow.AddMinutes(jwtSettings.ExpiresMinutes),
             signingCredentials: credentials
         );
 

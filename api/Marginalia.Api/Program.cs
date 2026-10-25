@@ -1,10 +1,9 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using Marginalia.Api.Configuration;
 using Marginalia.Api.Data;
 using Marginalia.Api.Models;
 using Marginalia.Api.Services;
@@ -18,12 +17,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownProxies.Clear();
 });
 
-var connectionString = builder.Configuration.GetConnectionString("Default");
-if (string.IsNullOrWhiteSpace(connectionString))
-    throw new InvalidOperationException(
-        "Konfigurationsfel: ConnectionStrings:Default saknas. " +
-        "Kör: dotnet user-secrets set \"ConnectionStrings:Default\" \"Host=...\""
-    );
+var connectionString = ApiConfiguration.GetRequiredDefaultConnectionString(builder.Configuration);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString, npgsql =>
@@ -35,33 +29,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     )
 );
 
-var jwtKey = builder.Configuration["Jwt:Key"];
-if (string.IsNullOrWhiteSpace(jwtKey) || jwtKey.Length < 32)
-    throw new InvalidOperationException(
-        "Konfigurationsfel: Jwt:Key saknas eller är kortare än 32 tecken. " +
-        "Kör: dotnet user-secrets set \"Jwt:Key\" \"<minst-32-tecken>\""
-    );
-
-var jwtIssuer   = builder.Configuration["Jwt:Issuer"]   ?? "marginalia";
-var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "marginalia-web";
+var jwtSettings = ApiConfiguration.GetValidatedJwtSettings(builder.Configuration);
+builder.Services.AddSingleton(jwtSettings);
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.MapInboundClaims = false;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer           = true,
-            ValidateAudience         = true,
-            ValidateLifetime         = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer              = jwtIssuer,
-            ValidAudience            = jwtAudience,
-            IssuerSigningKey         = new SymmetricSecurityKey(
-                                           Encoding.UTF8.GetBytes(jwtKey)),
-            ClockSkew                = TimeSpan.Zero,
-        };
+        options.TokenValidationParameters = jwtSettings.CreateTokenValidationParameters();
     });
 
 builder.Services.AddAuthorization();

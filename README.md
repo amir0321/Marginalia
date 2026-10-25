@@ -94,9 +94,20 @@ Alla `/api/*`-anrop proxyas automatiskt till `http://localhost:5080`.
 | Tjänst | URL |
 |---|---|
 | Frontend (Angular) | http://localhost:4200 |
+| Hälsokontroll (via Angular-proxy) | http://localhost:4200/api/health |
 | API (direkt) | http://localhost:5080/api |
-| Hälsokontroll | http://localhost:5080/api/health |
+| Hälsokontroll (direkt) | http://localhost:5080/api/health |
 | API-dokumentation (Scalar) | http://localhost:5080/scalar |
+
+## Arkitektur och hosting
+
+Marginalia använder en same-origin-arkitektur baserad på omvänd proxy (reverse proxy), vilket eliminerar behovet av CORS (Cross-Origin Resource Sharing) helt och hållet:
+
+- **Lokalt (utveckling):** Angular Dev Server proxyar alla anrop mot `/api/*` till backend-servern på `http://localhost:5080` via `web/proxy.conf.json`.
+- **Produktion:** Frontend hostas som en statisk SPA på Netlify, medan API:t körs som en containeriserad Docker-webbtjänst på Render. Netlify dirigerar om alla `/api/*`-anrop till Render via regeln i `web/public/_redirects`, innan SPA-fallbacksregeln fångar upp resterande rutter.
+- **Varför ingen CORS:** Eftersom webbläsaren endast kommunicerar med samma ursprung (same-origin) både lokalt (`http://localhost:4200`) och i produktion (Netlify-domänen) behövs inga CORS-headers (`AddCors`/`UseCors`). Detta minskar attackytan och eliminerar preflight-anrop (`OPTIONS`).
+- **Säker hemlighetshantering:** Känsliga konfigurationsvärden (`ConnectionStrings:Default` och `Jwt:Key`) checkas aldrig in i källkod eller konfigurationsfiler. Lokalt lagras de utanför versionshanteringen med `dotnet user-secrets`. I produktion (Render) injiceras de som miljövariabler (`ConnectionStrings__Default`, `Jwt__Key`, `Jwt__Issuer`, `Jwt__Audience`, `Jwt__ExpiresMinutes`). En mall finns i `.env.example`.
+- **Uppväckning av fria instanser:** Gratisinstanser på Render går i viloläge efter ~15 minuters inaktivitet och behöver upp till en minut för att starta. Frontend skickar en hälsokontroll (`GET /api/health`) vid appstart för att väcka API:t i bakgrunden och informerar användaren med en toast först om svaret dröjer mer än 2 sekunder.
 
 ## Arbetssätt
 - `main` är alltid fungerande och är det som publiceras.
