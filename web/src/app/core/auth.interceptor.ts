@@ -31,13 +31,20 @@ export const authInterceptor: HttpInterceptorFn = (
 
   return next(outReq).pipe(
     catchError((err: unknown) => {
-      if (err instanceof HttpErrorResponse && err.status === 401) {
-        if (!isPassthrough) {
-          auth.logout();
-          router.navigate(['/login']);
+      if (err instanceof HttpErrorResponse && isApiCall) {
+        if (err.status === 401) {
+          if (!isPassthrough) {
+            auth.logout();
+            router.navigate(['/login']);
+            toast.show(
+              'Din session har gått ut. Logga in igen för att fortsätta.',
+              'warning'
+            );
+          }
+        } else if (!req.url.startsWith('/api/health') && (err.status === 0 || err.status >= 500)) {
           toast.show(
-            'Din session har gått ut. Logga in igen för att fortsätta.',
-            'warning'
+            'Kunde inte nå servern just nu. Kontrollera din anslutning och försök igen.',
+            'danger'
           );
         }
       }
