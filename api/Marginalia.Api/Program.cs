@@ -18,8 +18,9 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     options.KnownProxies.Clear();
 });
 
-var connectionString = builder.Configuration.GetConnectionString("Default")
-    ?? throw new InvalidOperationException(
+var connectionString = builder.Configuration.GetConnectionString("Default");
+if (string.IsNullOrWhiteSpace(connectionString))
+    throw new InvalidOperationException(
         "Konfigurationsfel: ConnectionStrings:Default saknas. " +
         "Kör: dotnet user-secrets set \"ConnectionStrings:Default\" \"Host=...\""
     );
