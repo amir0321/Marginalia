@@ -109,6 +109,42 @@ Marginalia använder en same-origin-arkitektur baserad på omvänd proxy (revers
 - **Säker hemlighetshantering:** Känsliga konfigurationsvärden (`ConnectionStrings:Default` och `Jwt:Key`) checkas aldrig in i källkod eller konfigurationsfiler. Lokalt lagras de utanför versionshanteringen med `dotnet user-secrets`. I produktion (Render) injiceras de som miljövariabler (`ConnectionStrings__Default`, `Jwt__Key`, `Jwt__Issuer`, `Jwt__Audience`, `Jwt__ExpiresMinutes`). En mall finns i `.env.example`.
 - **Uppväckning av fria instanser:** Gratisinstanser på Render går i viloläge efter ~15 minuters inaktivitet och behöver upp till en minut för att starta. Frontend skickar en hälsokontroll (`GET /api/health`) vid appstart för att väcka API:t i bakgrunden och informerar användaren med en toast först om svaret dröjer mer än 2 sekunder.
 
+## Hur autentisering fungerar
+
+Marginalia använder JSON Web Tokens (JWT) för tillståndslös (stateless) autentisering mellan frontend och backend:
+
+1. **Inloggning & registrering:**
+   - Vid registrering (`POST /api/auth/register`) skapas användarkontot och lösenordet hashas med ASP.NET Core `PasswordHasher<User>`.
+   - Vid inloggning (`POST /api/auth/login`) valideras uppgifterna. Om autentiseringen lyckas returnerar API:t en signerad JWT-token med 60 minuters giltighetstid.
+2. **Lagring i webbläsaren:**
+   - Frontend sparar token i `localStorage` under nyckeln `marginalia.token`.
+   - `AuthService` läser token vid appstart och härleder reaktivt inloggningsstatus (`isLoggedIn`) och användarnamn (`username`) från JWT-payloaden (`unique_name`, `exp`) med Angular-signaler.
+3. **Bearer-interceptor (`authInterceptor`):**
+   - Samtliga anrop mot `/api/*` (exklusive `/api/auth/login` och `/api/auth/register`) får automatiskt headern `Authorization: Bearer <token>` bifogad via en funktionell Angular HTTP-interceptor.
+4. **Route guards:**
+   - `authGuard` skyddar privata sidor (`/books`, `/books/new`, `/books/:id/edit`, `/quotes`). Oinloggade besökare dirigeras till `/login`.
+   - `guestGuard` förhindrar inloggade användare från att besöka `/login` och `/register` och skickar dem vidare till `/books`.
+5. **Utloggning & hantering av 401 Unauthorized:**
+   - När en användare klickar på "Logga ut" rensas `marginalia.token` från `localStorage` och användaren navigeras till `/login`.
+   - Om en token har löpt ut eller blivit ogiltig och ett skyddat API-anrop svarar med `401 Unauthorized`, fångar `authInterceptor` felet automatiskt, rensar sessionen, omdirigerar till `/login` och visar en informativ varningstoast: *"Din session har gått ut. Logga in igen för att fortsätta."*.
+   - Felaktiga inloggningsförsök (`401` från `/api/auth/login`) fångas lokalt i formuläret och visar ett felmeddelande utan att trigga sessionsutloggning eller global toast.
+
+### Säkerhetsavvägning: `localStorage` kontra `HttpOnly`-cookie (XSS vs CSRF)
+
+Valet att lagra JWT i `localStorage` gjordes medvetet utifrån applikationens arkitektur och kraven i kodtestet:
+
+- **Fördelar med `localStorage`:**
+  - **Skydd mot CSRF (Cross-Site Request Forgery):** Webbläsaren bifogar inte `localStorage`-data automatiskt i HTTP-anrop till skillnad från kakor. Det gör att applikationen är immun mot klassiska CSRF-attacker utan att behöva hantera Anti-Forgery-tokens eller SameSite-undantag.
+  - **Enkel och ren SPA-integration:** Frontend har full kontroll över när och hur token skickas via `Authorization`-headern, vilket passar utmärkt med reverse-proxy-arkitekturen och stateless API-design.
+- **Avvägning och sårbarheter (XSS):**
+  - Den främsta risken med `localStorage` är att token kan läsas av skadlig JavaScript vid en eventuell XSS-sårbarhet (Cross-Site Scripting).
+  - En `HttpOnly`-kaka skyddar mot att klientskript kan läsa token direkt, men kräver i stället strikt CSRF-hantering och komplicerar proxykonfiguration.
+- **Hur vi säkrar `localStorage` mot XSS:**
+  - Angulars inbyggda strikta mall-sanering används konsekvent: inga opålitliga `innerHTML`, `bypassSecurityTrust*` eller `document.write`.
+  - All användardata interpoleras säkert i HTML.
+  - Backend validerar och sanerar all indata strikt.
+  - Kort livslängd på JWT (60 minuter) och ingen refresh token minskar fönstret för ett eventuellt kapat token.
+
 ## Arbetssätt
 - `main` är alltid fungerande och är det som publiceras.
 - Allt arbete sker i feature-brancher som mergas via pull request.

@@ -141,4 +141,55 @@ describe('authInterceptor', () => {
     expect(toastSpy.show).not.toHaveBeenCalled();
     expect(errorResponse).toBeTruthy();
   });
+
+  it('should show danger toast when /api request fails with status 0 (network error)', () => {
+    http.get('/api/books').subscribe({ error: () => {} });
+
+    const req = httpMock.expectOne('/api/books');
+    req.error(new ProgressEvent('error'), { status: 0, statusText: 'Unknown Error' });
+
+    expect(toastSpy.show).toHaveBeenCalledWith(
+      'Kunde inte nå servern just nu. Kontrollera din anslutning och försök igen.',
+      'danger'
+    );
+  });
+
+  it('should show danger toast when /api request fails with 5xx server error', () => {
+    http.get('/api/books').subscribe({ error: () => {} });
+
+    const req = httpMock.expectOne('/api/books');
+    req.flush('Server error', { status: 500, statusText: 'Internal Server Error' });
+
+    expect(toastSpy.show).toHaveBeenCalledWith(
+      'Kunde inte nå servern just nu. Kontrollera din anslutning och försök igen.',
+      'danger'
+    );
+  });
+
+  it('should not show server error toast when /api/health fails with status 0 or 500', () => {
+    http.get('/api/health').subscribe({ error: () => {} });
+
+    const req = httpMock.expectOne('/api/health');
+    req.flush('Service Unavailable', { status: 503, statusText: 'Service Unavailable' });
+
+    expect(toastSpy.show).not.toHaveBeenCalled();
+  });
+
+  it('should not show server error toast for 4xx errors like 400 Bad Request', () => {
+    http.post('/api/books', {}).subscribe({ error: () => {} });
+
+    const req = httpMock.expectOne('/api/books');
+    req.flush({ errors: {} }, { status: 400, statusText: 'Bad Request' });
+
+    expect(toastSpy.show).not.toHaveBeenCalled();
+  });
+
+  it('should not show server error toast for non-/api requests failing with 500', () => {
+    http.get('/assets/config.json').subscribe({ error: () => {} });
+
+    const req = httpMock.expectOne('/assets/config.json');
+    req.flush('Not Found', { status: 500, statusText: 'Server Error' });
+
+    expect(toastSpy.show).not.toHaveBeenCalled();
+  });
 });

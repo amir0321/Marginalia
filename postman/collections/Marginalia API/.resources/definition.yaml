@@ -1,0 +1,13 @@
+$kind: collection
+description: Komplett Postman Collection för Marginalia (.NET 9 Web API). Innehåller alla endpoints för hälsa, autentisering, böcker och citat med färdiga exempel och automatisk token-hantering.
+variables:
+  baseUrl: http://localhost:5080
+  token: ""
+  bookId: 00000000-0000-0000-0000-000000000000
+  quoteId: 00000000-0000-0000-0000-000000000000
+auth:
+  - id: aeb7320b-a248-46ea-9b30-3f3fc73aba62
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{token}}"

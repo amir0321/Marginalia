@@ -1,0 +1,5 @@
+$kind: http-request
+description: Returnerar användarens sparade favoritcitat (äldst först, max 5 stycken).
+url: "{{baseUrl}}/api/quotes"
+method: GET
+order: 1000

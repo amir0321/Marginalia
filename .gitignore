@@ -35,3 +35,6 @@ appsettings.Local.json
 
 # Docker local data
 .docker-data/
+
+# Postman local config
+.postman/

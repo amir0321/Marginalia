@@ -1,0 +1,7 @@
+$kind: http-request
+description: Anonym hälsokontroll som väcker API:t eller verifierar att tjänsten körs.
+url: "{{baseUrl}}/api/health"
+method: GET
+auth:
+  type: noauth
+order: 1000

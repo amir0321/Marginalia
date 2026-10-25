@@ -1,0 +1,5 @@
+$kind: http-request
+description: Tar bort citatet från användarens samling (204 No Content).
+url: "{{baseUrl}}/api/quotes/{{quoteId}}"
+method: DELETE
+order: 4000

@@ -1,6 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { AuthService } from './auth.service';
+import { AuthResponse, LoginRequest, RegisterRequest } from './models';
 
 function createMockToken(username: string, expInSecondsFromNow: number): string {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
@@ -16,6 +19,7 @@ function createMockToken(username: string, expInSecondsFromNow: number): string 
 describe('AuthService', () => {
   let service: AuthService;
   let routerSpy: jasmine.SpyObj<Router>;
+  let httpMock: HttpTestingController;
 
   beforeEach(() => {
     localStorage.removeItem('marginalia.token');
@@ -23,15 +27,19 @@ describe('AuthService', () => {
 
     TestBed.configureTestingModule({
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: Router, useValue: routerSpy }
       ]
     });
 
     service = TestBed.inject(AuthService);
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
   afterEach(() => {
     localStorage.removeItem('marginalia.token');
+    httpMock.verify();
   });
 
   it('should be created and default to logged out when no token exists', () => {
@@ -69,5 +77,49 @@ describe('AuthService', () => {
     expect(service.getToken()).toBeNull();
     expect(localStorage.getItem('marginalia.token')).toBeNull();
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
+  });
+
+  it('should call POST /api/auth/login, persist token, and return auth response', () => {
+    const loginReq: LoginRequest = { username: 'testuser', password: 'password123' };
+    const mockToken = createMockToken('testuser', 3600);
+    const mockResponse: AuthResponse = {
+      token: mockToken,
+      username: 'testuser',
+      expiresAt: new Date(Date.now() + 3600 * 1000).toISOString()
+    };
+
+    let actualResponse: AuthResponse | undefined;
+    service.login(loginReq).subscribe(res => {
+      actualResponse = res;
+    });
+
+    const req = httpMock.expectOne('/api/auth/login');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(loginReq);
+    req.flush(mockResponse);
+
+    expect(actualResponse).toEqual(mockResponse);
+    expect(service.getToken()).toBe(mockToken);
+    expect(localStorage.getItem('marginalia.token')).toBe(mockToken);
+    expect(service.isLoggedIn()).toBeTrue();
+    expect(service.username()).toBe('testuser');
+  });
+
+  it('should call POST /api/auth/register with request payload', () => {
+    const registerReq: RegisterRequest = { username: 'newuser', password: 'password123' };
+    let completed = false;
+
+    service.register(registerReq).subscribe({
+      next: () => {
+        completed = true;
+      }
+    });
+
+    const req = httpMock.expectOne('/api/auth/register');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(registerReq);
+    req.flush(null, { status: 201, statusText: 'Created' });
+
+    expect(completed).toBeTrue();
   });
 });

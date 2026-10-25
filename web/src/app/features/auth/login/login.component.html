@@ -26,7 +26,17 @@
       <h1 id="loginHeading">Logga in</h1>
       <p class="page-lead">Dina böcker och anteckningar väntar på dig.</p>
 
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      @if (errorMessage()) {
+        <div class="auth-alert alert-danger" role="alert">
+          <i class="fa-solid fa-circle-exclamation auth-alert-icon" aria-hidden="true"></i>
+          <div class="auth-alert-content">
+            <div class="auth-alert-title">Något gick fel</div>
+            <p class="auth-alert-text">{{ errorMessage() }}</p>
+          </div>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
         <div class="mb-3">
           <label for="username" class="form-label">
             Användarnamn <span aria-hidden="true">*</span>
@@ -37,11 +47,21 @@
               type="text"
               id="username"
               class="form-control"
+              [class.is-invalid]="usernameInvalid()"
               formControlName="username"
               placeholder="Ditt användarnamn"
               autocomplete="username"
+              required
+              [attr.aria-invalid]="usernameInvalid()"
+              [attr.aria-describedby]="usernameInvalid() ? 'username-error' : null"
             />
           </div>
+          @if (usernameInvalid()) {
+            <div id="username-error" class="field-error" role="alert">
+              <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+              <span>{{ usernameError() }}</span>
+            </div>
+          }
         </div>
 
         <div class="mb-4">
@@ -54,9 +74,13 @@
               [type]="showPassword() ? 'text' : 'password'"
               id="password"
               class="form-control"
+              [class.is-invalid]="passwordInvalid()"
               formControlName="password"
               placeholder="Minst 8 tecken"
               autocomplete="current-password"
+              required
+              [attr.aria-invalid]="passwordInvalid()"
+              [attr.aria-describedby]="passwordInvalid() ? 'password-error' : null"
             />
             <button
               type="button"
@@ -67,12 +91,18 @@
               <i class="fa-solid" [class.fa-eye]="!showPassword()" [class.fa-eye-slash]="showPassword()" aria-hidden="true"></i>
             </button>
           </div>
+          @if (passwordInvalid()) {
+            <div id="password-error" class="field-error" role="alert">
+              <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+              <span>{{ passwordError() }}</span>
+            </div>
+          }
         </div>
 
         <button
           type="submit"
           class="btn btn-primary btn-block"
-          [disabled]="form.invalid"
+          [disabled]="isSubmitting()"
         >
           <span>Logga in</span>
           <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>

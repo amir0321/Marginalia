@@ -1,5 +1,8 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { Observable, tap } from 'rxjs';
+import { AuthResponse, LoginRequest, RegisterRequest } from './models';
 
 const TOKEN_KEY = 'marginalia.token';
 
@@ -16,6 +19,7 @@ function parseJwtPayload(token: string): Record<string, unknown> | null {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
 
   private readonly _token = signal<string | null>(this.readToken());
 
@@ -56,12 +60,14 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
-  login(_username: string, _password: string): void {
-    throw new Error('TODO: implementera login()');
+  login(request: LoginRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>('/api/auth/login', request).pipe(
+      tap(response => this.setToken(response.token))
+    );
   }
 
-  register(_username: string, _password: string): void {
-    throw new Error('TODO: implementera register()');
+  register(request: RegisterRequest): Observable<void> {
+    return this.http.post<void>('/api/auth/register', request);
   }
 
   private readToken(): string | null {
