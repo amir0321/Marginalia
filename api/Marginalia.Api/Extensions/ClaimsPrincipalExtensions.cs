@@ -6,11 +6,15 @@ public static class ClaimsPrincipalExtensions
 {
     public static Guid GetUserId(this ClaimsPrincipal principal)
     {
-        var sub = principal.FindFirstValue(ClaimTypes.NameIdentifier)
-                  ?? principal.FindFirstValue("sub");
+        ArgumentNullException.ThrowIfNull(principal);
 
-        if (sub is null || !Guid.TryParse(sub, out var userId))
+        var sub = principal.FindFirstValue("sub")
+                  ?? principal.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (string.IsNullOrWhiteSpace(sub) || !Guid.TryParse(sub, out var userId))
+        {
             throw new InvalidOperationException("sub claim not found or not a valid GUID.");
+        }
 
         return userId;
     }

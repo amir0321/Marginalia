@@ -31,16 +31,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var jwtSettings = ApiConfiguration.GetValidatedJwtSettings(builder.Configuration);
 builder.Services.AddSingleton(jwtSettings);
-
-builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.MapInboundClaims = false;
-        options.TokenValidationParameters = jwtSettings.CreateTokenValidationParameters();
-    });
-
-builder.Services.AddAuthorization();
+builder.Services.AddMarginaliaAuth(jwtSettings);
 
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
@@ -74,3 +65,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Marginalia.Api.Controllers;
@@ -7,5 +8,6 @@ namespace Marginalia.Api.Controllers;
 public class HealthController : ControllerBase
 {
     [HttpGet]
+    [AllowAnonymous]
     public IActionResult Get() => Ok(new { status = "ok" });
 }

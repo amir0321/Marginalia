@@ -1,4 +1,7 @@
 using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Marginalia.Api.Configuration;
@@ -84,5 +87,31 @@ public static class ApiConfiguration
             Audience = audience,
             ExpiresMinutes = expiresMinutes,
         };
+    }
+
+    public static void ConfigureAuthorization(AuthorizationOptions options)
+    {
+        options.FallbackPolicy = new AuthorizationPolicyBuilder()
+            .RequireAuthenticatedUser()
+            .Build();
+    }
+
+    public static void ConfigureJwtBearer(JwtBearerOptions options, JwtSettings jwtSettings)
+    {
+        options.MapInboundClaims = false;
+        options.TokenValidationParameters = jwtSettings.CreateTokenValidationParameters();
+    }
+
+    public static IServiceCollection AddMarginaliaAuth(
+        this IServiceCollection services,
+        JwtSettings jwtSettings)
+    {
+        services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options => ConfigureJwtBearer(options, jwtSettings));
+
+        services.AddAuthorization(ConfigureAuthorization);
+
+        return services;
     }
 }
