@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
+using Marginalia.Api.Dtos;
 using Marginalia.Api.Models;
 using Marginalia.Api.Services;
 
@@ -62,5 +63,42 @@ public class TokenServiceTests
         Assert.False(string.IsNullOrWhiteSpace(jtiClaim.Value));
 
         Assert.True(jwtToken.ValidTo > DateTime.UtcNow);
+    }
+
+    [Fact]
+    public void CreateAuthResponse_ReturnsExpectedResponse_AndMatchingJwtValidTo()
+    {
+        var service = new TokenService(_configuration);
+        var userId = Guid.NewGuid();
+        var user = new User
+        {
+            Id = userId,
+            Username = "bokmalen",
+            UsernameNormalized = "BOKMALEN",
+            PasswordHash = "hash"
+        };
+
+        var response = service.CreateAuthResponse(user);
+
+        Assert.NotNull(response);
+        Assert.Equal("bokmalen", response.Username);
+        Assert.False(string.IsNullOrWhiteSpace(response.Token));
+        Assert.Equal(DateTimeKind.Utc, response.ExpiresAt.Kind);
+        Assert.True(response.ExpiresAt > DateTime.UtcNow);
+
+        var handler = new JwtSecurityTokenHandler();
+        Assert.True(handler.CanReadToken(response.Token));
+
+        var jwtToken = handler.ReadJwtToken(response.Token);
+        var subClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub);
+        Assert.NotNull(subClaim);
+        Assert.Equal(userId.ToString(), subClaim.Value);
+
+        var nameClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.UniqueName);
+        Assert.NotNull(nameClaim);
+        Assert.Equal("bokmalen", nameClaim.Value);
+
+        var diff = (response.ExpiresAt - jwtToken.ValidTo).Duration();
+        Assert.True(diff < TimeSpan.FromSeconds(2));
     }
 }
