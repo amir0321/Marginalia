@@ -33,7 +33,7 @@ var jwtSettings = ApiConfiguration.GetValidatedJwtSettings(builder.Configuration
 builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddMarginaliaAuth(jwtSettings);
 
-builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped(sp => new TokenService(sp.GetRequiredService<JwtSettings>()));
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 builder.Services.AddControllers();
