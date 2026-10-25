@@ -1,35 +1,43 @@
 .brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   color: var(--ink);
-  transition: opacity 180ms ease;
+  text-decoration: none;
+  transition: color 180ms ease;
 
   &:hover {
-    opacity: 0.9;
+    color: var(--ink-hover);
   }
 
-  &.on-dark {
-    color: #ffffff !important;
-
-    .brand-text {
-      color: #ffffff !important;
-    }
+  &.on-dark,
+  &.on-dark:hover {
+    color: #FFFFFF;
   }
 }
 
-[data-bs-theme="dark"] .brand-logo:not(.on-dark) {
-  color: var(--text);
+.logo-icon {
+  flex-shrink: 0;
+  width: 31px;
+  height: 31px;
 }
 
 .brand-text {
   font-family: 'Fraunces', Georgia, serif;
   font-weight: 600;
-  font-size: 1.4rem;
-  letter-spacing: -0.02em;
+  font-size: 23px;
+  letter-spacing: -0.04em;
   line-height: 1;
   color: inherit;
 }
 
-.logo-icon {
-  flex-shrink: 0;
-  display: inline-block;
-  vertical-align: middle;
+.is-compact {
+  .logo-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .brand-text {
+    font-size: 17px;
+  }
 }

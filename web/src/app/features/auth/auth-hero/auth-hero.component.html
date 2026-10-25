@@ -1,49 +1,55 @@
-<div class="auth-hero d-flex flex-column justify-content-between p-4 p-lg-5 text-white position-relative overflow-hidden h-100">
+<div class="auth-hero d-flex flex-column justify-content-between text-white position-relative overflow-hidden h-100">
   <div class="hero-watermark position-absolute" aria-hidden="true">
     <svg viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="200" cy="500" r="280" stroke="rgba(255,255,255,0.04)" stroke-width="2" />
+      <circle cx="200" cy="500" r="280" stroke="rgba(255,255,255,0.05)" stroke-width="2" />
       <circle cx="200" cy="500" r="380" stroke="rgba(255,255,255,0.04)" stroke-width="2" />
       <circle cx="200" cy="500" r="480" stroke="rgba(255,255,255,0.03)" stroke-width="2" />
     </svg>
   </div>
 
   <header class="d-flex justify-content-between align-items-center position-relative z-1">
-    <app-logo [onDark]="true" [iconWidth]="32" [iconHeight]="27"></app-logo>
+    <app-logo [onDark]="true"></app-logo>
 
     <button
       type="button"
-      class="theme-toggle-pill btn d-inline-flex align-items-center justify-content-between p-1 px-2"
-      (click)="theme.toggle()"
+      class="theme-toggle on-dark"
+      [class.is-dark]="theme.current() === 'dark'"
+      [attr.aria-pressed]="theme.current() === 'dark'"
       aria-label="Byt färgtema"
-      title="Byt färgtema"
+      (click)="theme.toggle()"
     >
-      <span class="pill-icon sun" [class.active]="theme.current() === 'light'">
-        <i class="fa-solid fa-sun" aria-hidden="true"></i>
-      </span>
-      <span class="pill-icon moon" [class.active]="theme.current() === 'dark'">
-        <i class="fa-solid fa-moon" aria-hidden="true"></i>
-      </span>
+      <span class="theme-toggle-knob" aria-hidden="true"></span>
+      <i class="fa-solid fa-sun theme-toggle-icon" [class.is-active]="theme.current() === 'light'" aria-hidden="true"></i>
+      <i class="fa-solid fa-moon theme-toggle-icon" [class.is-active]="theme.current() === 'dark'" aria-hidden="true"></i>
     </button>
   </header>
 
-  <figure class="hero-book-showcase d-flex justify-content-center align-items-center my-auto py-5 position-relative z-1 mb-0" aria-label="Illustration av en öppen bok">
+  <figure class="hero-book-showcase d-flex justify-content-center align-items-center my-auto py-4 position-relative z-1 mb-0" aria-label="Illustration av en öppen bok">
     <div class="book-mockup shadow-lg">
-      <div class="book-page left-page d-flex flex-column justify-content-between p-4">
-        <div class="page-content">
-          <span class="amber-quote-mark" aria-hidden="true">“</span>
-        </div>
+      <div class="book-page left-page d-flex flex-column justify-content-between">
         <div class="page-lines" aria-hidden="true">
           <div class="page-line w-75"></div>
           <div class="page-line w-50"></div>
+          <div class="page-line w-65"></div>
+        </div>
+        <div class="page-content">
+          <span class="amber-quote-mark" aria-hidden="true">“</span>
         </div>
       </div>
 
       <div class="book-spine-divider" aria-hidden="true"></div>
 
-      <div class="book-page right-page d-flex flex-column justify-content-center align-items-center p-4 text-center">
-        <p class="book-quote-phrase mb-0 font-fraunces">
-          en tanke värd<br>att återvända till
-        </p>
+      <div class="book-page right-page d-flex flex-column justify-content-between">
+        <div class="page-lines" aria-hidden="true">
+          <div class="page-line w-70"></div>
+          <div class="page-line w-85"></div>
+          <div class="page-line w-60"></div>
+        </div>
+        <div class="marginalia-note">
+          <p class="book-quote-phrase mb-0 font-fraunces">
+            en tanke värd<br>att återvända till
+          </p>
+        </div>
       </div>
     </div>
   </figure>

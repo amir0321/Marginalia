@@ -35,8 +35,3 @@ appsettings.Local.json
 
 # Docker local data
 .docker-data/
-
-# Local tool settings
-.agents/
-.agent/
-AGENTS.md

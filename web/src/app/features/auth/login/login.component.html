@@ -1,34 +1,35 @@
-<div class="row g-0 min-vh-100">
-  <aside class="d-none d-lg-block col-lg-5 col-xl-5" aria-label="Varumärkesillustration">
+<div class="auth-layout">
+  <aside class="auth-layout-hero" aria-label="Varumärkesillustration">
     <app-auth-hero></app-auth-hero>
   </aside>
 
-  <main class="col-12 col-lg-7 col-xl-7 d-flex flex-column justify-content-between p-4 p-md-5 bg-body">
-    <header class="d-flex d-lg-none justify-content-between align-items-center mb-4">
+  <main class="auth-layout-main">
+    <header class="auth-topbar">
       <app-logo></app-logo>
+
       <button
         type="button"
-        class="btn btn-outline-secondary border-0 btn-sm"
-        (click)="theme.toggle()"
+        class="theme-toggle"
+        [class.is-dark]="theme.current() === 'dark'"
+        [attr.aria-pressed]="theme.current() === 'dark'"
         aria-label="Byt färgtema"
+        (click)="theme.toggle()"
       >
-        @if (theme.current() === 'dark') {
-          <i class="fa-solid fa-sun" aria-hidden="true"></i>
-        } @else {
-          <i class="fa-solid fa-moon" aria-hidden="true"></i>
-        }
+        <span class="theme-toggle-knob" aria-hidden="true"></span>
+        <i class="fa-solid fa-sun theme-toggle-icon" [class.is-active]="theme.current() === 'light'" aria-hidden="true"></i>
+        <i class="fa-solid fa-moon theme-toggle-icon" [class.is-active]="theme.current() === 'dark'" aria-hidden="true"></i>
       </button>
     </header>
 
-    <section class="m-auto w-100" style="max-width: 440px;" aria-labelledby="loginHeading">
+    <section class="auth-card" aria-labelledby="loginHeading">
       <span class="overline">VÄLKOMMEN TILLBAKA</span>
-      <h1 id="loginHeading" class="h2 mb-1">Logga in</h1>
-      <p class="text-secondary mb-4">Dina böcker och anteckningar väntar på dig.</p>
+      <h1 id="loginHeading">Logga in</h1>
+      <p class="page-lead">Dina böcker och anteckningar väntar på dig.</p>
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()">
         <div class="mb-3">
-          <label for="username" class="form-label small fw-semibold text-secondary mb-1">
-            Användarnamn <span class="text-danger" aria-hidden="true">*</span>
+          <label for="username" class="form-label">
+            Användarnamn <span aria-hidden="true">*</span>
           </label>
           <div class="input-icon-group">
             <i class="fa-solid fa-user input-icon" aria-hidden="true"></i>
@@ -37,15 +38,15 @@
               id="username"
               class="form-control"
               formControlName="username"
-              placeholder="bokvan"
+              placeholder="Ditt användarnamn"
               autocomplete="username"
             />
           </div>
         </div>
 
         <div class="mb-4">
-          <label for="password" class="form-label small fw-semibold text-secondary mb-1">
-            Lösenord <span class="text-danger" aria-hidden="true">*</span>
+          <label for="password" class="form-label">
+            Lösenord <span aria-hidden="true">*</span>
           </label>
           <div class="input-icon-group">
             <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
@@ -54,7 +55,7 @@
               id="password"
               class="form-control"
               formControlName="password"
-              placeholder="••••••••"
+              placeholder="Minst 8 tecken"
               autocomplete="current-password"
             />
             <button
@@ -70,7 +71,7 @@
 
         <button
           type="submit"
-          class="btn btn-primary w-100 py-2 d-flex align-items-center justify-content-center gap-2"
+          class="btn btn-primary btn-block"
           [disabled]="form.invalid"
         >
           <span>Logga in</span>
@@ -78,18 +79,10 @@
         </button>
       </form>
 
-      <nav aria-label="Kontoalternativ" class="text-center mt-4 pt-2">
-        <span class="text-secondary small me-1">Har du inget konto?</span>
-        <a routerLink="/register" class="small fw-semibold text-decoration-none">
-          Registrera dig
-        </a>
+      <nav aria-label="Kontoalternativ" class="auth-switch">
+        <span>Har du inget konto? </span>
+        <a routerLink="/register">Registrera dig</a>
       </nav>
     </section>
-
-    <footer class="text-center mt-4">
-      <small class="text-secondary" style="font-size: 0.75rem;">
-        Marginalia &middot; Ett hem för ord som stannar kvar
-      </small>
-    </footer>
   </main>
 </div>

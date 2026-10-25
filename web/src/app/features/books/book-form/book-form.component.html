@@ -1,107 +1,100 @@
-<div class="row justify-content-center">
-  <div class="col-12 col-md-10 col-lg-7 col-xl-6">
-    <nav aria-label="Brödsmulor" class="mb-3">
-      <a routerLink="/books" class="back-link">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-        <span>Tillbaka till mina böcker</span>
-      </a>
-    </nav>
+<div class="book-form-container">
+  <nav aria-label="Brödsmulor" class="mb-3">
+    <a routerLink="/books" class="back-link">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      <span>Tillbaka till mina böcker</span>
+    </a>
+  </nav>
 
-    <article class="card p-4 p-md-5">
-      <header class="mb-4">
-        <div class="card-icon-header mb-3">
-          @if (isEditMode()) {
-            <i class="fa-solid fa-pen" aria-hidden="true"></i>
-          } @else {
-            <i class="fa-solid fa-plus" aria-hidden="true"></i>
-          }
-        </div>
+  <article class="card form-card">
+    <header class="form-card-header">
+      <div class="form-icon" aria-hidden="true">
+        @if (isEditMode()) {
+          <i class="fa-solid fa-pen"></i>
+        } @else {
+          <i class="fa-solid fa-plus"></i>
+        }
+      </div>
+      <div>
         <span class="overline">{{ isEditMode() ? 'UPPDATERA DIN SAMLING' : 'EN NY BERÄTTELSE' }}</span>
-        <h1 class="h2 mb-1">{{ isEditMode() ? 'Redigera bok' : 'Lägg till ny bok' }}</h1>
-        <p class="text-secondary mb-0">
+        <h1 class="form-card-title">{{ isEditMode() ? 'Redigera bok' : 'Lägg till ny bok' }}</h1>
+        <p class="form-card-lead">
           {{ isEditMode() ? 'Ändra uppgifterna och spara när du är klar.' : 'Fyll i uppgifterna för boken du vill spara.' }}
         </p>
-      </header>
+      </div>
+    </header>
 
-      <form [formGroup]="form" (ngSubmit)="onSubmit()">
-        <div class="mb-3">
-          <label for="bookTitle" class="form-label small fw-semibold text-secondary mb-1">
-            Titel <span class="text-danger" aria-hidden="true">*</span>
-          </label>
-          <input
-            type="text"
-            id="bookTitle"
-            class="form-control"
-            formControlName="title"
-            placeholder="Exempel: Ett eget rum"
-            maxlength="200"
-          />
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="mt-4">
+      <div class="mb-3">
+        <label for="bookTitle" class="form-label">
+          Titel <span aria-hidden="true">*</span>
+        </label>
+        <input
+          type="text"
+          id="bookTitle"
+          class="form-control"
+          formControlName="title"
+          placeholder="Exempel: Ett eget rum"
+          maxlength="200"
+        />
+      </div>
+
+      <div class="mb-3">
+        <label for="bookAuthor" class="form-label">
+          Författare <span aria-hidden="true">*</span>
+        </label>
+        <input
+          type="text"
+          id="bookAuthor"
+          class="form-control"
+          formControlName="author"
+          placeholder="Exempel: Virginia Woolf"
+          maxlength="200"
+        />
+      </div>
+
+      <div class="mb-3">
+        <label for="publishedDate" class="form-label">
+          Publiceringsdatum <span aria-hidden="true">*</span>
+        </label>
+        <input
+          type="date"
+          id="publishedDate"
+          class="form-control"
+          formControlName="publishedDate"
+        />
+      </div>
+
+      <div class="mb-4">
+        <label for="description" class="form-label">
+          Beskrivning <span class="form-optional">(Valfritt)</span>
+        </label>
+        <textarea
+          id="description"
+          rows="5"
+          class="form-control"
+          formControlName="description"
+          placeholder="Några ord om boken…"
+          maxlength="500"
+        ></textarea>
+        <div class="char-counter">
+          {{ descriptionCount() }}/500 tecken
         </div>
+      </div>
 
-        <div class="mb-3">
-          <label for="bookAuthor" class="form-label small fw-semibold text-secondary mb-1">
-            Författare <span class="text-danger" aria-hidden="true">*</span>
-          </label>
-          <input
-            type="text"
-            id="bookAuthor"
-            class="form-control"
-            formControlName="author"
-            placeholder="Exempel: Virginia Woolf"
-            maxlength="200"
-          />
-        </div>
-
-        <div class="mb-3">
-          <label for="publishedDate" class="form-label small fw-semibold text-secondary mb-1">
-            Publiceringsdatum <span class="text-danger" aria-hidden="true">*</span>
-          </label>
-          <div class="input-icon-group">
-            <i class="fa-solid fa-calendar-days input-icon" aria-hidden="true"></i>
-            <input
-              type="date"
-              id="publishedDate"
-              class="form-control"
-              formControlName="publishedDate"
-              placeholder="åååå-mm-dd"
-            />
-          </div>
-        </div>
-
-        <div class="mb-4">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <label for="description" class="form-label small fw-semibold text-secondary mb-0">
-              Beskrivning
-            </label>
-            <span class="badge text-secondary bg-transparent p-0 small fw-normal">Valfritt</span>
-          </div>
-          <textarea
-            id="description"
-            rows="4"
-            class="form-control"
-            formControlName="description"
-            placeholder="Några ord om boken..."
-            maxlength="500"
-          ></textarea>
-          <div class="char-counter">
-            {{ descriptionCount() }}/500 tecken
-          </div>
-        </div>
-
-        <footer class="d-flex justify-content-end gap-2 pt-2">
-          <a routerLink="/books" class="btn btn-outline-secondary px-4">
-            Avbryt
-          </a>
-          <button
-            type="submit"
-            class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
-            [disabled]="form.invalid"
-          >
-            <i class="fa-solid fa-check" aria-hidden="true"></i>
-            <span>Spara</span>
-          </button>
-        </footer>
-      </form>
-    </article>
-  </div>
+      <footer class="form-actions">
+        <a routerLink="/books" class="btn btn-secondary">
+          Avbryt
+        </a>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="form.invalid"
+        >
+          <i class="fa-solid fa-check" aria-hidden="true"></i>
+          <span>Spara</span>
+        </button>
+      </footer>
+    </form>
+  </article>
 </div>

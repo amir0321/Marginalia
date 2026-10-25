@@ -1,3 +1,51 @@
-:host {
-  display: block;
+.confirm-modal-wrapper {
+  padding: 26px;
+}
+
+.delete-icon-circle {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background-color: rgba(240, 68, 56, 0.1);
+  color: var(--danger);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.confirm-modal-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.confirm-modal-msg {
+  font-size: 15px;
+  color: var(--text);
+}
+
+.confirm-modal-support {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 0;
+}
+
+.confirm-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+
+  @media (max-width: 575.98px) {
+    .btn {
+      flex: 1;
+    }
+  }
 }

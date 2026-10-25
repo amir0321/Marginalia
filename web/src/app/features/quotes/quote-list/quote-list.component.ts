@@ -1,7 +1,7 @@
 import { Component, signal, computed } from '@angular/core';
 import { Quote } from '../../../core/models';
 
-const ORDINAL_SWEDISH = ['första', 'andra', 'tredje', 'fjärde', 'femte'];
+const ORDINAL_SWEDISH = ['1:a', '2:a', '3:e', '4:e', '5:e'];
 
 @Component({
   selector: 'app-quote-list',

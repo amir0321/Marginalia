@@ -1,74 +1,244 @@
-.navbar {
-  border-color: var(--border) !important;
+.shell-container {
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 0 24px;
+
+  @media (max-width: 767.98px) {
+    padding: 0 16px;
+  }
+}
+
+/* Navbar */
+
+.app-header {
+  background-color: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+
+.app-navbar {
+  padding: 0;
+}
+
+.app-navbar-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 72px;
+
+  @media (max-width: 767.98px) {
+    min-height: 64px;
+  }
+}
+
+.app-navbar-toggler {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background-color: transparent;
+  color: var(--text);
+  font-size: 16px;
 }
 
 .nav-link {
-  color: var(--text);
-  font-weight: 500;
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
   transition: color 180ms ease;
 
-  &:hover {
-    color: var(--link);
+  &:hover,
+  &:focus-visible {
+    color: var(--text);
   }
 
   &.active {
-    color: var(--link);
-    font-weight: 600;
+    color: var(--text);
 
     &::after {
       content: '';
       position: absolute;
-      bottom: -4px;
-      left: 1rem;
-      right: 1rem;
-      height: 2px;
       background-color: var(--amber);
-      border-radius: 2px;
     }
   }
 }
 
-/* Sleek pill theme switcher matching Figma */
-.theme-toggle-pill {
-  background-color: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  gap: 6px;
-  height: 32px;
-  min-height: 32px;
-  padding: 2px 6px;
+.app-navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
 
-  &:hover {
-    background-color: var(--surface-2);
-    border-color: var(--muted);
+/* Desktop: horizontal menu with a 2px amber line along the navbar bottom */
+@media (min-width: 992px) {
+  .app-nav {
+    margin-left: 54px;
+    margin-right: auto;
+    gap: 8px;
+  }
+
+  .navbar-expand-lg .app-nav .nav-link {
+    height: 72px;
+    padding: 0 12px;
+
+    &.active::after {
+      left: 12px;
+      right: 12px;
+      bottom: -1px;
+      height: 2px;
+    }
   }
 }
 
-.pill-icon {
-  width: 22px;
-  height: 22px;
+/* Mobile menu: stacked links with a 3px vertical amber line */
+@media (max-width: 991.98px) {
+  .app-navbar-collapse {
+    flex-basis: 100%;
+  }
+
+  .app-nav {
+    padding: 8px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .nav-link {
+    min-height: 44px;
+    padding: 0 16px;
+
+    &.active::after {
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 3px;
+      border-radius: 2px;
+    }
+  }
+
+  .app-navbar-actions {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 16px 0;
+    border-top: 1px solid var(--border);
+  }
+}
+
+/* User menu */
+
+.user-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 42px;
+  padding: 0 10px 0 4px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background-color: transparent;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 180ms ease;
+
+  &:hover {
+    background-color: var(--surface-2);
+  }
+
+  &::after {
+    display: none;
+  }
+}
+
+.user-avatar {
+  width: 34px;
+  height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  font-size: 0.75rem;
-  color: var(--muted);
-  transition: all 180ms ease;
+  background-color: var(--ink-solid);
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 600;
+}
 
-  &.active {
-    background-color: var(--amber);
-    color: #1F3A5F;
+.user-chevron {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.user-menu {
+  width: 210px;
+  padding: 0 0 6px;
+}
+
+.user-menu-header {
+  margin: 0 0 6px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Main content and footer */
+
+.app-main {
+  width: 100%;
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 64px 24px 88px;
+
+  @media (max-width: 767.98px) {
+    padding: 40px 16px 60px;
   }
 }
 
-.user-menu-btn {
-  padding: 4px 10px;
-  border-radius: 999px;
-  background-color: var(--surface-2);
+.app-footer {
+  background-color: var(--surface);
+  border-top: 1px solid var(--border);
+}
 
-  &:hover {
-    background-color: var(--surface-2);
-    opacity: 0.9;
+.app-footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 102px;
+}
+
+.app-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.app-footer-logo {
+  opacity: 0.65;
+}
+
+.app-footer-slogan {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+
+  @media (max-width: 767.98px) {
+    display: none;
   }
+}
+
+.app-footer-copy {
+  font-size: 13px;
+  color: var(--muted);
 }

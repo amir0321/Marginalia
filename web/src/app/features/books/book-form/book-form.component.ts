@@ -1,4 +1,5 @@
 import { Component, inject, signal, computed } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 
@@ -22,8 +23,12 @@ export class BookFormComponent {
     description: ['', [Validators.maxLength(500)]],
   });
 
+  private readonly descriptionValue = toSignal(this.form.controls.description.valueChanges, {
+    initialValue: this.form.controls.description.value,
+  });
+
   readonly descriptionCount = computed(() => {
-    return this.form.controls.description.value?.length ?? 0;
+    return this.descriptionValue()?.length ?? 0;
   });
 
   constructor() {

@@ -1,38 +1,120 @@
+.quotes-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Quote card: 3px amber spine, 260px min-height, Fraunces italic */
+.quote-card {
+  min-height: 260px;
+  padding: 30px 30px 24px 34px;
+  border-left: 3px solid var(--amber) !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.quote-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.quote-card-icon {
+  font-size: 23px;
+  color: var(--amber);
+  line-height: 1;
+}
+
+.quote-card-index {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--border);
+}
+
+.quote-card-body {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+
+.quote-card-text {
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(18px, 2vw, 22px);
+  line-height: 1.52;
+  color: var(--text);
+}
+
+.quote-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  border-top: none;
+}
+
+.quote-card-author {
+  font-family: 'Inter', sans-serif;
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Dashed card button for adding quotes */
 .dashed-quote-card {
-  border: 2px dashed var(--border) !important;
-  background-color: transparent !important;
-  min-height: 200px;
+  border: 1px dashed var(--border) !important;
+  background-color: var(--surface);
+  border-radius: 16px;
+  min-height: 230px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  cursor: pointer;
+  box-shadow: none;
   transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
 
   &:hover {
     border-color: var(--amber) !important;
-    background-color: var(--surface-2) !important;
+    background-color: var(--surface-2);
     transform: translateY(-2px);
   }
 }
 
-.amber-quote-mark {
-  color: var(--amber);
-  font-family: 'Fraunces', Georgia, serif;
-  line-height: 1;
-  display: block;
-}
-
-.quote-action-btn {
-  width: 34px;
-  height: 34px;
+.dashed-quote-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: var(--surface-2);
+  color: var(--ink);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.dashed-quote-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.dashed-quote-lead {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
   color: var(--muted);
-
-  &:hover {
-    color: var(--link);
-    background-color: var(--surface-2);
-  }
-
-  &.delete-btn:hover {
-    color: var(--semantic-danger);
-  }
+  margin-bottom: 0;
 }

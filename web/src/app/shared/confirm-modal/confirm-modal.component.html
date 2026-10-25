@@ -1,31 +1,41 @@
-<header class="modal-header border-0 pb-0">
-  <h2 class="modal-title h5 mb-0" id="confirm-modal-title">{{ title() }}</h2>
-  <button
-    type="button"
-    class="btn-close"
-    aria-label="Stäng dialog"
-    (click)="activeModal.dismiss('cancel')"
-  ></button>
-</header>
-<div class="modal-body py-3">
-  <p class="mb-1">{{ message() }}</p>
-  @if (supportText()) {
-    <small class="text-secondary">{{ supportText() }}</small>
-  }
+<div class="confirm-modal-wrapper">
+  <div class="d-flex justify-content-end mb-1">
+    <button
+      type="button"
+      class="btn-icon"
+      aria-label="Stäng dialog"
+      (click)="activeModal.dismiss('cancel')"
+    >
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  <div class="text-center px-2">
+    <div class="delete-icon-circle mx-auto mb-3" aria-hidden="true">
+      <i class="fa-solid fa-trash"></i>
+    </div>
+
+    <h2 class="confirm-modal-title" id="confirm-modal-title">{{ title() }}</h2>
+    <p class="confirm-modal-msg mb-1">{{ message() }}</p>
+    @if (supportText()) {
+      <p class="confirm-modal-support text-muted">{{ supportText() }}</p>
+    }
+  </div>
+
+  <footer class="confirm-modal-footer">
+    <button
+      type="button"
+      class="btn btn-secondary"
+      (click)="activeModal.dismiss('cancel')"
+    >
+      {{ cancelText() }}
+    </button>
+    <button
+      type="button"
+      class="btn btn-danger"
+      (click)="activeModal.close(true)"
+    >
+      {{ confirmText() }}
+    </button>
+  </footer>
 </div>
-<footer class="modal-footer border-0 pt-0">
-  <button
-    type="button"
-    class="btn btn-outline-secondary"
-    (click)="activeModal.dismiss('cancel')"
-  >
-    {{ cancelText() }}
-  </button>
-  <button
-    type="button"
-    class="btn btn-danger"
-    (click)="activeModal.close(true)"
-  >
-    {{ confirmText() }}
-  </button>
-</footer>

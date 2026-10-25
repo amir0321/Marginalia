@@ -11,7 +11,7 @@ export class ConfirmModalComponent {
   readonly activeModal = inject(NgbActiveModal);
 
   readonly title = input<string>('Är du säker?');
-  readonly message = input<string>('Denna åtgärd går inte att ångra.');
+  readonly message = input<string>('Är du säker på att du vill radera?');
   readonly supportText = input<string>('Åtgärden går inte att ångra.');
   readonly confirmText = input<string>('Radera');
   readonly cancelText = input<string>('Avbryt');

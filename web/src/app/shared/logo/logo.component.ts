@@ -13,6 +13,5 @@ export class LogoComponent {
   readonly showText = input<boolean>(true);
   readonly linkUrl = input<string>('/');
   readonly ariaLabel = input<string>('Marginalia startsida');
-  readonly iconWidth = input<number>(31);
-  readonly iconHeight = input<number>(26);
+  readonly compact = input<boolean>(false);
 }

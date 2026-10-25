@@ -1,28 +1,28 @@
 <div class="d-flex flex-column gap-4">
-  <header class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+  <header class="page-header">
     <div>
       <span class="overline">DITT BIBLIOTEK</span>
-      <h1 class="h2 mb-1">Mina böcker</h1>
-      <p class="text-secondary mb-0">
-        {{ books().length }} {{ books().length === 1 ? 'bok sparad' : 'böcker sparade' }} i din samling.
+      <h1>Mina böcker</h1>
+      <p class="page-lead">
+        {{ books().length === 1 ? '1 bok sparad' : books().length + ' böcker sparade' }} i din samling.
       </p>
     </div>
     <div>
-      <a routerLink="/books/new" class="btn btn-primary d-inline-flex align-items-center gap-2">
+      <a routerLink="/books/new" class="btn btn-primary page-header-action" aria-label="Lägg till ny bok">
         <i class="fa-solid fa-plus" aria-hidden="true"></i>
-        <span>Lägg till ny bok</span>
+        <span class="d-none d-md-inline">Lägg till ny bok</span>
       </a>
     </div>
   </header>
 
-  <section class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3" aria-label="Sök och sortering">
-    <div class="flex-grow-1" style="max-width: 420px;">
+  <section class="books-toolbar d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3" aria-label="Sök och sortering">
+    <div class="flex-grow-1 search-container">
       <div class="input-icon-group">
         <i class="fa-solid fa-magnifying-glass input-icon" aria-hidden="true"></i>
         <input
           type="search"
           class="form-control"
-          placeholder="Sök efter titel eller författare..."
+          placeholder="Sök efter titel eller författare…"
           [ngModel]="searchQuery()"
           (ngModelChange)="searchQuery.set($event)"
           aria-label="Sök efter titel eller författare"
@@ -43,48 +43,48 @@
   @if (filteredBooks().length > 0) {
     <section class="card d-none d-md-block overflow-hidden" aria-label="Boklista i tabell">
       <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="bg-body-secondary">
+        <table class="table table-hover align-middle mb-0 book-table">
+          <thead>
             <tr>
-              <th scope="col" class="py-3 ps-4 text-secondary small fw-semibold" style="width: 40%;">TITEL</th>
-              <th scope="col" class="py-3 text-secondary small fw-semibold" style="width: 25%;">FÖRFATTARE</th>
-              <th scope="col" class="py-3 text-secondary small fw-semibold" style="width: 20%;">PUBLICERINGSDATUM</th>
-              <th scope="col" class="py-3 pe-4 text-secondary small fw-semibold text-end" style="width: 15%;">ÅTGÄRDER</th>
+              <th scope="col" class="ps-4" style="width: 40%;">TITEL</th>
+              <th scope="col" style="width: 25%;">FÖRFATTARE</th>
+              <th scope="col" style="width: 20%;">PUBLICERINGSDATUM</th>
+              <th scope="col" class="pe-4 text-end" style="width: 15%;">ÅTGÄRDER</th>
             </tr>
           </thead>
           <tbody>
             @for (book of filteredBooks(); track book.id) {
-              <tr>
-                <td class="py-3 ps-4">
+              <tr class="book-row">
+                <td class="ps-4">
                   <div class="d-flex align-items-center gap-3">
-                    <div class="book-icon-badge" aria-hidden="true">
-                      <i class="fa-solid fa-book"></i>
+                    <div class="book-glyph" aria-hidden="true">
+                      <i class="fa-solid fa-book-open"></i>
                     </div>
                     <span class="fw-semibold text-body">{{ book.title }}</span>
                   </div>
                 </td>
-                <td class="py-3 text-secondary">{{ book.author }}</td>
-                <td class="py-3 text-secondary">
+                <td class="text-body">{{ book.author }}</td>
+                <td class="text-muted">
                   <time [attr.datetime]="book.publishedDate">{{ book.publishedDate | date:'d MMM yyyy' }}</time>
                 </td>
-                <td class="py-3 pe-4 text-end">
-                  <div class="d-inline-flex align-items-center gap-3">
+                <td class="pe-4 text-end">
+                  <div class="d-inline-flex align-items-center gap-1">
                     <a
                       [routerLink]="['/books', book.id, 'edit']"
-                      class="btn btn-link text-secondary text-decoration-none p-0 d-inline-flex align-items-center gap-1 small action-link"
+                      class="btn btn-ghost"
                       aria-label="Redigera bok"
                     >
                       <i class="fa-solid fa-pen" aria-hidden="true"></i>
-                      <span>Redigera</span>
+                      <span class="d-none d-lg-inline">Redigera</span>
                     </a>
                     <button
                       type="button"
-                      class="btn btn-link text-secondary text-decoration-none p-0 d-inline-flex align-items-center gap-1 small action-link delete-link"
+                      class="btn btn-ghost is-danger"
                       (click)="onDelete(book)"
                       aria-label="Radera bok"
                     >
                       <i class="fa-solid fa-trash" aria-hidden="true"></i>
-                      <span>Radera</span>
+                      <span class="d-none d-lg-inline">Radera</span>
                     </button>
                   </div>
                 </td>
@@ -97,33 +97,39 @@
 
     <section class="d-flex d-md-none flex-column gap-3" aria-label="Boklista i kort">
       @for (book of filteredBooks(); track book.id) {
-        <article class="card p-3">
-          <div class="d-flex align-items-start gap-3 mb-2">
-            <div class="book-icon-badge" aria-hidden="true">
-              <i class="fa-solid fa-book"></i>
+        <article class="card mobile-book-card">
+          <div class="d-flex align-items-start gap-3">
+            <div class="book-glyph" aria-hidden="true">
+              <i class="fa-solid fa-book-open"></i>
             </div>
-            <div class="flex-grow-1">
-              <h2 class="h6 mb-1 text-body">{{ book.title }}</h2>
-              <p class="text-secondary small mb-1">{{ book.author }}</p>
-              <time class="text-muted small d-block" [attr.datetime]="book.publishedDate">
-                {{ book.publishedDate | date:'yyyy-MM-dd' }}
-              </time>
+            <div class="flex-grow-1 min-w-0">
+              <h2 class="mobile-book-title mb-1">{{ book.title }}</h2>
+              <p class="mobile-book-author mb-0 text-muted">{{ book.author }}</p>
             </div>
           </div>
-          <footer class="d-flex justify-content-end gap-3 pt-2 border-top">
-            <a
-              [routerLink]="['/books', book.id, 'edit']"
-              class="btn btn-link text-secondary text-decoration-none p-0 small action-link"
-            >
-              <i class="fa-solid fa-pen me-1" aria-hidden="true"></i> Redigera
-            </a>
-            <button
-              type="button"
-              class="btn btn-link text-secondary text-decoration-none p-0 small action-link delete-link"
-              (click)="onDelete(book)"
-            >
-              <i class="fa-solid fa-trash me-1" aria-hidden="true"></i> Radera
-            </button>
+          <footer class="mobile-book-footer d-flex justify-content-between align-items-center">
+            <time class="mobile-book-date text-muted" [attr.datetime]="book.publishedDate">
+              {{ book.publishedDate | date:'d MMM yyyy' }}
+            </time>
+            <div class="d-inline-flex align-items-center gap-1">
+              <a
+                [routerLink]="['/books', book.id, 'edit']"
+                class="btn btn-ghost btn-sm"
+                aria-label="Redigera bok"
+              >
+                <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                <span>Redigera</span>
+              </a>
+              <button
+                type="button"
+                class="btn btn-ghost is-danger btn-sm"
+                (click)="onDelete(book)"
+                aria-label="Radera bok"
+              >
+                <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                <span>Radera</span>
+              </button>
+            </div>
           </footer>
         </article>
       }
@@ -132,9 +138,9 @@
     <app-empty-state
       icon="fa-solid fa-magnifying-glass"
       title="Inga böcker matchade din sökning"
-      description="Prova ett annat sökord eller rensa sökfältet."
+      description="Prova en annan sökning eller rensa sökfältet."
     >
-      <button type="button" class="btn btn-outline-secondary" (click)="searchQuery.set('')">
+      <button type="button" class="btn btn-secondary" (click)="searchQuery.set('')">
         Rensa sökning
       </button>
     </app-empty-state>

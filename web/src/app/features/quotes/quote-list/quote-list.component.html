@@ -1,91 +1,89 @@
 <div class="d-flex flex-column gap-4">
-  <header class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+  <header class="page-header">
     <div>
       <span class="overline">ORD ATT ÅTERVÄNDA TILL</span>
-      <h1 class="h2 mb-1">Mina citat</h1>
-      <p class="text-secondary mb-0">Upp till fem favoritcitat, samlade på ett ställe.</p>
+      <h1>Mina citat</h1>
+      <p class="page-lead">Dina fem favoritcitat, samlade på ett ställe.</p>
     </div>
     <div>
       <button
         type="button"
-        class="btn btn-primary d-inline-flex align-items-center gap-2"
+        class="btn btn-primary page-header-action"
         [disabled]="isMaxLimitReached()"
         (click)="onAddQuote()"
         [attr.title]="isMaxLimitReached() ? 'Du har nått maxgränsen på fem citat' : 'Lägg till citat'"
+        aria-label="Lägg till citat"
       >
         <i class="fa-solid fa-plus" aria-hidden="true"></i>
-        <span>Lägg till citat</span>
+        <span class="d-none d-md-inline">Lägg till citat</span>
       </button>
     </div>
   </header>
 
   @if (isMaxLimitReached()) {
     <div class="alert alert-warning d-flex align-items-center gap-2 mb-0" role="status">
-      <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+      <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
       <span>Du har nått maxgränsen på fem citat. Radera ett citat för att lägga till ett nytt.</span>
     </div>
   }
 
-  <section class="row g-4" aria-label="Mina favoritcitat">
+  <section class="quotes-grid" aria-label="Mina favoritcitat">
     @for (quote of quotes(); track quote.id) {
-      <div class="col-12 col-lg-6">
-        <article class="card quote-card p-4 h-100 d-flex flex-column justify-content-between">
-          <div>
-            <span class="amber-quote-mark fs-3" aria-hidden="true">“</span>
-            <blockquote class="blockquote my-2">
-              <p class="quote-text fs-5 mb-0 text-body">
-                {{ quote.text }}
-              </p>
-            </blockquote>
+      <article class="card quote-card">
+        <header class="quote-card-header">
+          <i class="fa-solid fa-quote-left quote-card-icon" aria-hidden="true"></i>
+          <span class="quote-card-index" aria-hidden="true">0{{ $index + 1 }}</span>
+        </header>
+
+        <blockquote class="blockquote quote-card-body my-3">
+          <p class="quote-card-text mb-0">
+            {{ quote.text }}
+          </p>
+        </blockquote>
+
+        <footer class="quote-card-footer">
+          <cite class="quote-card-author">
+            {{ quote.author }}
+          </cite>
+          <div class="d-inline-flex align-items-center gap-2">
+            <button
+              type="button"
+              class="btn-icon"
+              (click)="onEditQuote(quote)"
+              aria-label="Redigera citat"
+            >
+              <i class="fa-solid fa-pen" aria-hidden="true"></i>
+            </button>
+            <button
+              type="button"
+              class="btn-icon is-danger"
+              (click)="onDeleteQuote(quote)"
+              aria-label="Radera citat"
+            >
+              <i class="fa-solid fa-trash" aria-hidden="true"></i>
+            </button>
           </div>
-          <footer class="d-flex justify-content-between align-items-end pt-3 mt-2 border-top">
-            <cite class="small text-secondary fw-medium font-inter fst-normal">
-              — {{ quote.author }}
-            </cite>
-            <div class="d-inline-flex align-items-center gap-2">
-              <button
-                type="button"
-                class="btn btn-sm btn-outline-secondary border-0 quote-action-btn"
-                (click)="onEditQuote(quote)"
-                aria-label="Redigera citat"
-              >
-                <i class="fa-solid fa-pen" aria-hidden="true"></i>
-              </button>
-              <button
-                type="button"
-                class="btn btn-sm btn-outline-secondary border-0 quote-action-btn delete-btn"
-                (click)="onDeleteQuote(quote)"
-                aria-label="Radera citat"
-              >
-                <i class="fa-solid fa-trash" aria-hidden="true"></i>
-              </button>
-            </div>
-          </footer>
-        </article>
-      </div>
+        </footer>
+      </article>
     }
 
     @if (!isMaxLimitReached()) {
-      <aside class="col-12 col-lg-6" aria-label="Lägg till ytterligare ett citat">
-        <div
-          class="card dashed-quote-card p-4 h-100 d-flex flex-column justify-content-center align-items-center text-center cursor-pointer"
-          (click)="onAddQuote()"
-          role="button"
-          tabindex="0"
-          (keydown.enter)="onAddQuote()"
-          (keydown.space)="onAddQuote()"
-        >
-          <div class="card-icon-header mb-3">
-            <i class="fa-solid fa-plus text-secondary" aria-hidden="true"></i>
-          </div>
-          <h2 class="h6 fw-semibold text-body mb-1">
-            Lägg till ditt {{ nextOrdinalWord() }} citat
-          </h2>
-          <p class="text-secondary small mb-0">
-            Spara ett stycke du vill minnas
-          </p>
+      <button
+        type="button"
+        class="card dashed-quote-card"
+        (click)="onAddQuote()"
+        aria-label="Lägg till ytterligare ett citat"
+      >
+        <div class="dashed-quote-circle" aria-hidden="true">
+          <i class="fa-solid fa-plus"></i>
         </div>
-      </aside>
+        <h2 class="dashed-quote-title">
+          Lägg till ditt {{ nextOrdinalWord() }} citat
+        </h2>
+        <p class="dashed-quote-lead">
+          Spara ett stycke du vill minnas
+        </p>
+      </button>
     }
   </section>
 </div>
