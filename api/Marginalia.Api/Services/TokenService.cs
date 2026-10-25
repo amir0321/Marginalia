@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Marginalia.Api.Configuration;
+using Marginalia.Api.Dtos;
 using Marginalia.Api.Models;
 
 namespace Marginalia.Api.Services;
@@ -34,5 +35,30 @@ public class TokenService(JwtSettings jwtSettings)
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public AuthResponse CreateAuthResponse(User user)
+    {
+        var expiresAt = DateTime.UtcNow.AddMinutes(jwtSettings.ExpiresMinutes);
+        var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key));
+        var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(JwtRegisteredClaimNames.UniqueName, user.Username),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        };
+
+        var token = new JwtSecurityToken(
+            issuer: jwtSettings.Issuer,
+            audience: jwtSettings.Audience,
+            claims: claims,
+            expires: expiresAt,
+            signingCredentials: credentials
+        );
+
+        var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+        return new AuthResponse(tokenString, user.Username, expiresAt);
     }
 }
