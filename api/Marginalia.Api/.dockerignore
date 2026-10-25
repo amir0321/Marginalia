@@ -5,3 +5,6 @@ obj/
 .vscode/
 Properties/launchSettings.json
 appsettings.Development.json
+appsettings.Local.json
+.env
+.env.*
