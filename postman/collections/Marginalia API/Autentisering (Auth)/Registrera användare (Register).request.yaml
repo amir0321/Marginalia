@@ -1,0 +1,16 @@
+$kind: http-request
+description: Skapar ett nytt användarkonto. Användarnamn 3-30 tecken, lösenord minst 8 tecken.
+url: "{{baseUrl}}/api/auth/register"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "username": "bokalvan",
+      "password": "Losenord123!"
+    }
+auth:
+  type: noauth
+order: 1000

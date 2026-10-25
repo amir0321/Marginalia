@@ -1,0 +1,27 @@
+$kind: http-request
+description: Loggar in och sparar automatiskt JWT Bearer-token i Postman-variabeln {{token}}.
+url: "{{baseUrl}}/api/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "username": "bokalvan",
+      "password": "Losenord123!"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      if (pm.response.code === 200) {
+          const data = pm.response.json();
+          if (data.token) {
+              pm.collectionVariables.set("token", data.token);
+              console.log("Token sparades automatiskt i variabeln 'token'!");
+          }
+      }
+    language: text/javascript
+order: 2000

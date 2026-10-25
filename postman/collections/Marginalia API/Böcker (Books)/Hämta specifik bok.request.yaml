@@ -1,0 +1,5 @@
+$kind: http-request
+description: Returnerar en specifik bok för den inloggade användaren. Ger 404 om boken tillhör någon annan.
+url: "{{baseUrl}}/api/books/{{bookId}}"
+method: GET
+order: 2000

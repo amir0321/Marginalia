@@ -1,0 +1,16 @@
+$kind: http-request
+description: Uppdaterar titel, författare, datum eller beskrivning för en befintlig bok.
+url: "{{baseUrl}}/api/books/{{bookId}}"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "title": "Kallocain",
+      "author": "Karin Boye",
+      "publishedDate": "1940-01-01",
+      "description": "Uppdaterad beskrivning för Karin Boyes mästerverk."
+    }
+order: 4000

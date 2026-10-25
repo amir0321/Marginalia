@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject, signal } from '@angular/core';
 import { Router, NavigationEnd, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs/operators';
@@ -11,6 +11,7 @@ import { LogoComponent } from '../../shared/logo/logo.component';
 @Component({
   selector: 'app-shell',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterOutlet,
     RouterLink,
@@ -51,4 +52,9 @@ export class ShellComponent {
     }
     return name.slice(0, 2).toUpperCase();
   });
+
+  logout(): void {
+    this.isCollapsed.set(true);
+    this.auth.logout();
+  }
 }
