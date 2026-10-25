@@ -1,5 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Marginalia.Api.Configuration;
 using Marginalia.Api.Models;
 using Marginalia.Api.Services;
@@ -134,5 +140,46 @@ public class ApiConfigurationTests
         Assert.NotNull(principal);
         Assert.NotNull(validatedToken);
         Assert.Equal(TimeSpan.FromMinutes(1), validationParameters.ClockSkew);
+    }
+
+    [Fact]
+    public void ConfigureAuthorization_SetsFallbackPolicy_RequiringAuthenticatedUser()
+    {
+        var options = new AuthorizationOptions();
+        ApiConfiguration.ConfigureAuthorization(options);
+
+        Assert.NotNull(options.FallbackPolicy);
+        Assert.Contains(
+            options.FallbackPolicy.Requirements,
+            req => req is DenyAnonymousAuthorizationRequirement
+        );
+    }
+
+    [Fact]
+    public void AddMarginaliaAuth_RegistersAuthenticationAndAuthorizationServices()
+    {
+        var services = new ServiceCollection();
+        var settings = new JwtSettings
+        {
+            Key = "a_very_secure_test_signing_key_32_chars_long!",
+            Issuer = "test-issuer",
+            Audience = "test-aud",
+            ExpiresMinutes = 15,
+        };
+
+        services.AddLogging();
+        services.AddMarginaliaAuth(settings);
+        using var sp = services.BuildServiceProvider();
+
+        var authService = sp.GetService<IAuthenticationService>();
+        Assert.NotNull(authService);
+
+        var authOptions = sp.GetRequiredService<IOptions<AuthorizationOptions>>().Value;
+        Assert.NotNull(authOptions.FallbackPolicy);
+
+        var jwtOptions = sp.GetRequiredService<IOptionsMonitor<JwtBearerOptions>>().Get(JwtBearerDefaults.AuthenticationScheme);
+        Assert.False(jwtOptions.MapInboundClaims);
+        Assert.Equal(settings.Issuer, jwtOptions.TokenValidationParameters.ValidIssuer);
+        Assert.Equal(settings.Audience, jwtOptions.TokenValidationParameters.ValidAudience);
     }
 }
