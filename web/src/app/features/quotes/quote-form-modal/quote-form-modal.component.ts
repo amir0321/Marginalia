@@ -15,9 +15,10 @@ import {
   ValidationErrors,
 } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { HttpErrorResponse } from '@angular/common/http';
 import { QuoteService } from '../quote.service';
 import { ToastService } from '../../../core/toast.service';
-import { Quote, QuoteRequest } from '../../../core/models';
+import { Quote, QuoteRequest, ProblemDetails } from '../../../core/models';
 
 function trimmedRequired(control: AbstractControl): ValidationErrors | null {
   const value = control.value;
@@ -121,33 +122,38 @@ export class QuoteFormModalComponent implements OnInit {
     }
   }
 
-  private handleSaveError(err: any): void {
-    if (err.status === 409) {
-      this.serverErrorMessage.set(
-        err.error?.detail || 'Du har nått maxgränsen på fem citat.'
-      );
-      return;
-    }
-
-    if (err.status === 400 && err.error?.errors) {
-      const errors = err.error.errors;
-      let hasFieldErrors = false;
-
-      for (const [key, messages] of Object.entries(errors)) {
-        const k = key.toLowerCase();
-        const msg = Array.isArray(messages) ? messages[0] : String(messages);
-
-        if (k === 'text') {
-          this.textControl.setErrors({ server: msg });
-          hasFieldErrors = true;
-        } else if (k === 'author') {
-          this.authorControl.setErrors({ server: msg });
-          hasFieldErrors = true;
-        }
+  private handleSaveError(err: unknown): void {
+    if (err instanceof HttpErrorResponse || (typeof err === 'object' && err !== null && 'status' in err)) {
+      const httpErr = err as { status?: number; error?: ProblemDetails };
+      if (httpErr.status === 409) {
+        this.serverErrorMessage.set(
+          httpErr.error?.detail || 'Du har nått maxgränsen på fem citat.'
+        );
+        return;
       }
 
-      if (!hasFieldErrors) {
-        this.serverErrorMessage.set(err.error?.detail || 'Ett valideringsfel uppstod. Kontrollera uppgifterna.');
+      if (httpErr.status === 400 && httpErr.error?.errors) {
+        const errors = httpErr.error.errors;
+        let hasFieldErrors = false;
+
+        for (const [key, messages] of Object.entries(errors)) {
+          const k = key.toLowerCase();
+          const msg = Array.isArray(messages) ? messages[0] : String(messages);
+
+          if (k === 'text') {
+            this.textControl.setErrors({ server: msg });
+            hasFieldErrors = true;
+          } else if (k === 'author') {
+            this.authorControl.setErrors({ server: msg });
+            hasFieldErrors = true;
+          }
+        }
+
+        if (!hasFieldErrors) {
+          this.serverErrorMessage.set(httpErr.error?.detail || 'Ett valideringsfel uppstod. Kontrollera uppgifterna.');
+        }
+      } else {
+        this.serverErrorMessage.set('Kunde inte spara citatet. Kontrollera anslutningen och försök igen.');
       }
     } else {
       this.serverErrorMessage.set('Kunde inte spara citatet. Kontrollera anslutningen och försök igen.');

@@ -42,8 +42,8 @@ export class LoginComponent {
   readonly errorMessage = signal<string | null>(null);
 
   readonly form = this.fb.nonNullable.group({
-    username: ['', [trimmedRequired]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
+    username: ['', [trimmedRequired, Validators.maxLength(30)]],
+    password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
   });
 
   constructor() {
@@ -68,6 +68,9 @@ export class LoginComponent {
     if (ctrl.errors?.['required']) {
       return 'Ange ett användarnamn';
     }
+    if (ctrl.errors?.['maxlength']) {
+      return 'Användarnamnet får vara högst 30 tecken';
+    }
     return '';
   }
 
@@ -86,6 +89,9 @@ export class LoginComponent {
     }
     if (ctrl.errors?.['minlength']) {
       return 'Använd minst 8 tecken';
+    }
+    if (ctrl.errors?.['maxlength']) {
+      return 'Lösenordet får vara högst 128 tecken';
     }
     return '';
   }
@@ -113,6 +119,9 @@ export class LoginComponent {
         if (err instanceof HttpErrorResponse) {
           if (err.status === 401) {
             this.errorMessage.set('Fel användarnamn eller lösenord');
+          } else if (err.status === 429) {
+            const problem = err.error as ProblemDetails | undefined;
+            this.errorMessage.set(problem?.detail || 'För många försök. Vänta en stund och försök igen.');
           } else if (err.status === 400) {
             const problem = err.error as ProblemDetails | undefined;
             if (problem?.errors) {

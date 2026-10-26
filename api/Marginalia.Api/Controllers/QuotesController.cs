@@ -1,3 +1,4 @@
+using System.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -37,30 +38,38 @@ public class QuotesController(AppDbContext db) : ControllerBase
         }
 
         var userId = User.GetUserId();
-        var count = await db.Quotes.CountAsync(q => q.UserId == userId, cancellationToken);
-        if (count >= 5)
+
+        var strategy = db.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync(async () =>
         {
-            return Problem(
-                statusCode: StatusCodes.Status409Conflict,
-                title: "Conflict",
-                detail: "Du har nått maxgränsen på fem citat."
-            );
-        }
+            await using var transaction = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, cancellationToken);
 
-        var quote = new Quote
-        {
-            Id = Guid.NewGuid(),
-            UserId = userId,
-            Text = text,
-            Author = author,
-            CreatedAt = DateTime.UtcNow
-        };
+            var count = await db.Quotes.CountAsync(q => q.UserId == userId, cancellationToken);
+            if (count >= 5)
+            {
+                return Problem(
+                    statusCode: StatusCodes.Status409Conflict,
+                    title: "Conflict",
+                    detail: "Du har nått maxgränsen på fem citat."
+                );
+            }
 
-        db.Quotes.Add(quote);
-        await db.SaveChangesAsync(cancellationToken);
+            var quote = new Quote
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                Text = text,
+                Author = author,
+                CreatedAt = DateTime.UtcNow
+            };
 
-        var response = new QuoteResponse(quote.Id, quote.Text, quote.Author);
-        return StatusCode(StatusCodes.Status201Created, response);
+            db.Quotes.Add(quote);
+            await db.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+
+            var response = new QuoteResponse(quote.Id, quote.Text, quote.Author);
+            return StatusCode(StatusCodes.Status201Created, response);
+        });
     }
 
     [HttpPut("{id:guid}")]

@@ -51,6 +51,7 @@
               formControlName="username"
               placeholder="Ditt användarnamn"
               autocomplete="username"
+              maxlength="30"
               required
               [attr.aria-invalid]="usernameInvalid()"
               [attr.aria-describedby]="usernameInvalid() ? 'username-error' : null"
@@ -78,6 +79,7 @@
               formControlName="password"
               placeholder="Minst 8 tecken"
               autocomplete="new-password"
+              maxlength="128"
               required
               [attr.aria-invalid]="passwordInvalid()"
               [attr.aria-describedby]="passwordInvalid() ? 'password-error' : null"
@@ -125,6 +127,7 @@
               formControlName="confirmPassword"
               placeholder="Upprepa lösenordet"
               autocomplete="new-password"
+              maxlength="128"
               required
               [attr.aria-invalid]="confirmPasswordInvalid()"
               [attr.aria-describedby]="confirmPasswordInvalid() ? 'confirmPassword-error' : null"

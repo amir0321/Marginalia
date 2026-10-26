@@ -140,6 +140,9 @@ public class ApiConfigurationTests
         Assert.NotNull(principal);
         Assert.NotNull(validatedToken);
         Assert.Equal(TimeSpan.FromMinutes(1), validationParameters.ClockSkew);
+        Assert.True(validationParameters.RequireExpirationTime);
+        Assert.True(validationParameters.RequireSignedTokens);
+        Assert.Contains(Microsoft.IdentityModel.Tokens.SecurityAlgorithms.HmacSha256, validationParameters.ValidAlgorithms);
     }
 
     [Fact]
@@ -181,5 +184,18 @@ public class ApiConfigurationTests
         Assert.False(jwtOptions.MapInboundClaims);
         Assert.Equal(settings.Issuer, jwtOptions.TokenValidationParameters.ValidIssuer);
         Assert.Equal(settings.Audience, jwtOptions.TokenValidationParameters.ValidAudience);
+    }
+
+    [Fact]
+    public void AddMarginaliaRateLimiting_RegistersRateLimiterOptions()
+    {
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddMarginaliaRateLimiting();
+        using var sp = services.BuildServiceProvider();
+
+        var rateLimiterOptions = sp.GetService<IOptions<Microsoft.AspNetCore.RateLimiting.RateLimiterOptions>>();
+        Assert.NotNull(rateLimiterOptions);
+        Assert.Equal(Microsoft.AspNetCore.Http.StatusCodes.Status429TooManyRequests, rateLimiterOptions.Value.RejectionStatusCode);
     }
 }

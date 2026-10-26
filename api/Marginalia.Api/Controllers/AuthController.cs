@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Marginalia.Api.Data;
 using Marginalia.Api.Dtos;
@@ -12,6 +13,7 @@ namespace Marginalia.Api.Controllers;
 
 [ApiController]
 [Route("api/auth")]
+[EnableRateLimiting("auth")]
 public partial class AuthController(
     AppDbContext db,
     IPasswordHasher<User> passwordHasher,
@@ -86,7 +88,6 @@ public partial class AuthController(
 
         var normalizedUsername = trimmedUsername.ToUpperInvariant();
         var user = await db.Users
-            .AsNoTracking()
             .SingleOrDefaultAsync(u => u.UsernameNormalized == normalizedUsername, cancellationToken);
 
         if (user is null)
@@ -109,6 +110,12 @@ public partial class AuthController(
                 title: "Unauthorized",
                 detail: "Fel användarnamn eller lösenord"
             );
+        }
+
+        if (verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
+        {
+            user.PasswordHash = passwordHasher.HashPassword(user, request.Password);
+            await db.SaveChangesAsync(cancellationToken);
         }
 
         var response = tokenService.CreateAuthResponse(user);
@@ -152,6 +159,10 @@ public partial class AuthController(
         {
             AddUniqueModelError(nameof(RegisterRequest.Password), "Använd minst 8 tecken");
         }
+        else if (request.Password.Length > 128)
+        {
+            AddUniqueModelError(nameof(RegisterRequest.Password), "Lösenordet får vara högst 128 tecken");
+        }
     }
 
     private void ValidateLoginRequest(LoginRequest? request, out string trimmedUsername)
@@ -170,6 +181,10 @@ public partial class AuthController(
         {
             AddUniqueModelError(nameof(LoginRequest.Username), "Ange ett användarnamn");
         }
+        else if (trimmedUsername.Length > 30)
+        {
+            AddUniqueModelError(nameof(LoginRequest.Username), "Användarnamnet får vara högst 30 tecken");
+        }
 
         if (string.IsNullOrEmpty(request.Password))
         {
@@ -178,6 +193,10 @@ public partial class AuthController(
         else if (request.Password.Length < 8)
         {
             AddUniqueModelError(nameof(LoginRequest.Password), "Använd minst 8 tecken");
+        }
+        else if (request.Password.Length > 128)
+        {
+            AddUniqueModelError(nameof(LoginRequest.Password), "Lösenordet får vara högst 128 tecken");
         }
     }
 

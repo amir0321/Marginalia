@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { QuoteFormModalComponent } from './quote-form-modal.component';
@@ -135,8 +136,9 @@ describe('QuoteFormModalComponent', () => {
     fixture.detectChanges();
 
     quoteServiceSpy.create.and.returnValue(
-      throwError(() => ({
+      throwError(() => new HttpErrorResponse({
         status: 409,
+        statusText: 'Conflict',
         error: { detail: 'Du har nått maxgränsen på fem citat.' },
       }))
     );
@@ -154,8 +156,9 @@ describe('QuoteFormModalComponent', () => {
     fixture.detectChanges();
 
     quoteServiceSpy.create.and.returnValue(
-      throwError(() => ({
+      throwError(() => new HttpErrorResponse({
         status: 400,
+        statusText: 'Bad Request',
         error: {
           errors: {
             text: ['Citatet får vara högst 600 tecken'],

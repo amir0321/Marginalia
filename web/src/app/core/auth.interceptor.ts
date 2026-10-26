@@ -1,7 +1,6 @@
 import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
-import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
 import { ToastService } from './toast.service';
 
@@ -12,7 +11,6 @@ export const authInterceptor: HttpInterceptorFn = (
   next: HttpHandlerFn
 ) => {
   const auth = inject(AuthService);
-  const router = inject(Router);
   const toast = inject(ToastService);
 
   const isApiCall = req.url.startsWith('/api');
@@ -35,7 +33,6 @@ export const authInterceptor: HttpInterceptorFn = (
         if (err.status === 401) {
           if (!isPassthrough) {
             auth.logout();
-            router.navigate(['/login']);
             toast.show(
               'Din session har gått ut. Logga in igen för att fortsätta.',
               'warning'

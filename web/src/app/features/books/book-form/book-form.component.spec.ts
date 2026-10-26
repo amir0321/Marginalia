@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, Router, provideRouter } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { BookFormComponent } from './book-form.component';
 import { BookService } from '../book.service';
@@ -159,8 +160,9 @@ describe('BookFormComponent', () => {
     }));
 
     it('should map 400 ProblemDetails errors to form fields', fakeAsync(() => {
-      const problemDetailsError = {
+      const problemDetailsError = new HttpErrorResponse({
         status: 400,
+        statusText: 'Bad Request',
         error: {
           title: 'One or more validation errors occurred.',
           errors: {
@@ -168,7 +170,7 @@ describe('BookFormComponent', () => {
             Author: ['Författaren får vara högst 200 tecken'],
           },
         },
-      };
+      });
 
       bookServiceSpy.create.and.returnValue(throwError(() => problemDetailsError));
 
@@ -188,7 +190,10 @@ describe('BookFormComponent', () => {
     }));
 
     it('should show general server error message on submit failure without field errors', fakeAsync(() => {
-      bookServiceSpy.create.and.returnValue(throwError(() => ({ status: 500 })));
+      bookServiceSpy.create.and.returnValue(throwError(() => new HttpErrorResponse({
+        status: 500,
+        statusText: 'Internal Server Error'
+      })));
 
       component.form.setValue({
         title: 'Ett eget rum',

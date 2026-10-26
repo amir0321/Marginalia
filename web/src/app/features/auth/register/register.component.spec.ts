@@ -194,4 +194,34 @@ describe('RegisterComponent', () => {
     expect(component.passwordError()).toBe('Lösenordet uppfyller inte säkerhetskraven.');
     expect(component.errorMessage()).toBe('Kontrollera de markerade fälten');
   });
+
+  it('should validate password maxLength of 128 characters', () => {
+    component.form.controls.password.setValue('a'.repeat(129));
+    component.form.controls.password.markAsTouched();
+
+    expect(component.passwordInvalid()).toBeTrue();
+    expect(component.passwordError()).toBe('Lösenordet får vara högst 128 tecken');
+  });
+
+  it('should show 429 rate limit error message on HTTP 429', () => {
+    const errorResponse = new HttpErrorResponse({
+      status: 429,
+      statusText: 'Too Many Requests',
+      error: {
+        title: 'Too Many Requests',
+        detail: 'För många försök. Vänta en stund och försök igen.',
+      },
+    });
+    authSpy.register.and.returnValue(throwError(() => errorResponse));
+
+    component.form.controls.username.setValue('bokmalen');
+    component.form.controls.password.setValue('password123');
+    component.form.controls.confirmPassword.setValue('password123');
+
+    component.onSubmit();
+    fixture.detectChanges();
+
+    expect(component.errorMessage()).toBe('För många försök. Vänta en stund och försök igen.');
+    expect(component.isSubmitting()).toBeFalse();
+  });
 });

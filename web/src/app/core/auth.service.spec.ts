@@ -122,4 +122,35 @@ describe('AuthService', () => {
 
     expect(completed).toBeTrue();
   });
+
+  it('should purge corrupt token from localStorage on initialization and return null', () => {
+    localStorage.setItem('marginalia.token', 'not-a-valid-jwt-token');
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: Router, useValue: routerSpy }
+      ]
+    });
+    const freshService = TestBed.inject(AuthService);
+    expect(freshService.getToken()).toBeNull();
+    expect(localStorage.getItem('marginalia.token')).toBeNull();
+  });
+
+  it('should purge expired token from localStorage on initialization and return null', () => {
+    const expiredToken = createMockToken('gammalanvandare', -3600);
+    localStorage.setItem('marginalia.token', expiredToken);
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: Router, useValue: routerSpy }
+      ]
+    });
+    const freshService = TestBed.inject(AuthService);
+    expect(freshService.getToken()).toBeNull();
+    expect(localStorage.getItem('marginalia.token')).toBeNull();
+  });
 });
