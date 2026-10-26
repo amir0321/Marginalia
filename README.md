@@ -99,6 +99,25 @@ Alla `/api/*`-anrop proxyas automatiskt till `http://localhost:5080`.
 | Hälsokontroll (direkt) | http://localhost:5080/api/health |
 | API-dokumentation (Scalar) | http://localhost:5080/scalar |
 
+## API-endpoints
+
+Samtliga anrop (förutom hälsokontroll och registrering/inloggning) kräver `Authorization: Bearer <token>` och hanterar data strikt per inloggad användare:
+
+| Metod | Endpoint | Beskrivning | Auth | Statuskoder |
+|---|---|---|---|---|
+| `GET` | `/api/health` | Hälsokontroll för hosting och uppväckning | Nej | `200` |
+| `POST` | `/api/auth/register` | Skapar ett nytt användarkonto | Nej | `201`, `400`, `409` |
+| `POST` | `/api/auth/login` | Loggar in och returnerar en 60-minuters JWT | Nej | `200`, `400`, `401` |
+| `GET` | `/api/books` | Hämtar användarens böcker (sorterade på titel) | Ja | `200`, `401` |
+| `GET` | `/api/books/{id}` | Hämtar en specifik bok för användaren | Ja | `200`, `401`, `404` |
+| `POST` | `/api/books` | Skapar en ny bok (titel, författare, datum, beskrivning) | Ja | `201`, `400`, `401` |
+| `PUT` | `/api/books/{id}` | Uppdaterar en befintlig bok | Ja | `200`, `400`, `401`, `404` |
+| `DELETE` | `/api/books/{id}` | Raderar en bok permanent | Ja | `204`, `401`, `404` |
+| `GET` | `/api/quotes` | Hämtar användarens citat (äldst först) | Ja | `200`, `401` |
+| `POST` | `/api/quotes` | Skapar ett citat (max 5 citat per användare) | Ja | `201`, `400`, `401`, `409` |
+| `PUT` | `/api/quotes/{id}` | Uppdaterar ett befintligt citat | Ja | `200`, `400`, `401`, `404` |
+| `DELETE` | `/api/quotes/{id}` | Raderar ett citat permanent | Ja | `204`, `401`, `404` |
+
 ## Köra tester och kvalitetssäkring
 
 Samtliga delar av projektet har heltäckande enhetstester och kan köras lokalt med följande kommandon:
