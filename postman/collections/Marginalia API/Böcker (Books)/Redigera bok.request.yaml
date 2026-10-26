@@ -1,5 +1,5 @@
 $kind: http-request
-description: Uppdaterar titel, författare, datum eller beskrivning för en befintlig bok.
+description: Uppdaterar titel, författare, datum eller beskrivning för en befintlig bok som tillhör den inloggade användaren.
 url: "{{baseUrl}}/api/books/{{bookId}}"
 method: PUT
 headers:

@@ -1,5 +1,5 @@
 $kind: http-request
-description: Uppdaterar citatets text och författare.
+description: Uppdaterar citatets text och författare för den inloggade användaren.
 url: "{{baseUrl}}/api/quotes/{{quoteId}}"
 method: PUT
 headers:

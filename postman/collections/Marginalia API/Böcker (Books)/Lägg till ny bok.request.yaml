@@ -1,5 +1,5 @@
 $kind: http-request
-description: Lägger till en ny bok i användarens samling.
+description: Lägger till en ny bok i den inloggade användarens personliga samling.
 url: "{{baseUrl}}/api/books"
 method: POST
 headers:
