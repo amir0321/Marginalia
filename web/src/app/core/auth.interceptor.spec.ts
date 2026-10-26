@@ -100,7 +100,7 @@ describe('authInterceptor', () => {
     req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
 
     expect(authSpy.logout).toHaveBeenCalled();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
+    expect(routerSpy.navigate).not.toHaveBeenCalled();
     expect(toastSpy.show).toHaveBeenCalledWith(
       'Din session har gått ut. Logga in igen för att fortsätta.',
       'warning'

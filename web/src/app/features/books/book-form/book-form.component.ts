@@ -2,10 +2,11 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } 
 import { toSignal } from '@angular/core/rxjs-interop';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { EmptyStateComponent } from '../../../shared/empty-state/empty-state.component';
 import { BookService } from '../book.service';
 import { ToastService } from '../../../core/toast.service';
-import { BookRequest } from '../../../core/models';
+import { BookRequest, ProblemDetails } from '../../../core/models';
 
 function trimmedRequired(control: AbstractControl): ValidationErrors | null {
   const value = control.value;
@@ -176,32 +177,37 @@ export class BookFormComponent implements OnInit {
     }
   }
 
-  private handleSaveError(err: any): void {
-    if (err.status === 400 && err.error?.errors) {
-      const errors = err.error.errors;
-      let hasFieldErrors = false;
+  private handleSaveError(err: unknown): void {
+    if (err instanceof HttpErrorResponse || (typeof err === 'object' && err !== null && 'status' in err)) {
+      const httpErr = err as { status?: number; error?: ProblemDetails };
+      if (httpErr.status === 400 && httpErr.error?.errors) {
+        const errors = httpErr.error.errors;
+        let hasFieldErrors = false;
 
-      for (const [key, messages] of Object.entries(errors)) {
-        const k = key.toLowerCase();
-        const msg = Array.isArray(messages) ? messages[0] : String(messages);
+        for (const [key, messages] of Object.entries(errors)) {
+          const k = key.toLowerCase();
+          const msg = Array.isArray(messages) ? messages[0] : String(messages);
 
-        if (k === 'title') {
-          this.titleControl.setErrors({ server: msg });
-          hasFieldErrors = true;
-        } else if (k === 'author') {
-          this.authorControl.setErrors({ server: msg });
-          hasFieldErrors = true;
-        } else if (k === 'publisheddate') {
-          this.dateControl.setErrors({ server: msg });
-          hasFieldErrors = true;
-        } else if (k === 'description') {
-          this.descControl.setErrors({ server: msg });
-          hasFieldErrors = true;
+          if (k === 'title') {
+            this.titleControl.setErrors({ server: msg });
+            hasFieldErrors = true;
+          } else if (k === 'author') {
+            this.authorControl.setErrors({ server: msg });
+            hasFieldErrors = true;
+          } else if (k === 'publisheddate') {
+            this.dateControl.setErrors({ server: msg });
+            hasFieldErrors = true;
+          } else if (k === 'description') {
+            this.descControl.setErrors({ server: msg });
+            hasFieldErrors = true;
+          }
         }
-      }
 
-      if (!hasFieldErrors) {
-        this.serverErrorMessage.set(err.error?.detail || 'Ett valideringsfel uppstod. Kontrollera uppgifterna.');
+        if (!hasFieldErrors) {
+          this.serverErrorMessage.set(httpErr.error?.detail || 'Ett valideringsfel uppstod. Kontrollera uppgifterna.');
+        }
+      } else {
+        this.serverErrorMessage.set('Kunde inte spara boken. Kontrollera anslutningen och försök igen.');
       }
     } else {
       this.serverErrorMessage.set('Kunde inte spara boken. Kontrollera anslutningen och försök igen.');

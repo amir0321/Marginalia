@@ -61,8 +61,8 @@ export class RegisterComponent {
   readonly form = this.fb.nonNullable.group(
     {
       username: ['', [usernameValidator]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', [Validators.required]],
+      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
+      confirmPassword: ['', [Validators.required, Validators.maxLength(128)]],
     },
     { validators: [passwordMatchValidator] }
   );
@@ -144,6 +144,9 @@ export class RegisterComponent {
     if (ctrl.errors?.['minlength']) {
       return 'Använd minst 8 tecken';
     }
+    if (ctrl.errors?.['maxlength']) {
+      return 'Lösenordet får vara högst 128 tecken';
+    }
     return '';
   }
 
@@ -160,6 +163,9 @@ export class RegisterComponent {
     }
     if (ctrl.errors?.['required']) {
       return 'Bekräfta lösenordet';
+    }
+    if (ctrl.errors?.['maxlength']) {
+      return 'Lösenordet får vara högst 128 tecken';
     }
     if (this.form.hasError('passwordMismatch')) {
       return 'Lösenorden matchar inte';
@@ -192,6 +198,9 @@ export class RegisterComponent {
           if (err.status === 409) {
             this.form.controls.username.setErrors({ server: 'Användarnamnet är redan upptaget' });
             this.errorMessage.set('Användarnamnet är redan upptaget');
+          } else if (err.status === 429) {
+            const problem = err.error as ProblemDetails | undefined;
+            this.errorMessage.set(problem?.detail || 'För många försök. Vänta en stund och försök igen.');
           } else if (err.status === 400) {
             const problem = err.error as ProblemDetails | undefined;
             if (problem?.errors) {

@@ -72,7 +72,19 @@ export class AuthService {
 
   private readToken(): string | null {
     try {
-      return localStorage.getItem(TOKEN_KEY);
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (!token) return null;
+      const payload = parseJwtPayload(token);
+      if (!payload) {
+        localStorage.removeItem(TOKEN_KEY);
+        return null;
+      }
+      const exp = payload['exp'] as number | undefined;
+      if (!exp || Date.now() / 1000 >= exp) {
+        localStorage.removeItem(TOKEN_KEY);
+        return null;
+      }
+      return token;
     } catch {
       return null;
     }
