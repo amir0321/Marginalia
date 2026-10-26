@@ -71,4 +71,32 @@ describe('ShellComponent', () => {
     expect(component.isCollapsed()).toBeTrue();
     expect(authSpy.logout).toHaveBeenCalled();
   });
+
+  it('should close mobile menu when clicking outside header', () => {
+    component.isCollapsed.set(false);
+    fixture.detectChanges();
+
+    const outsideDiv = document.createElement('div');
+    document.body.appendChild(outsideDiv);
+
+    component.onDocumentClick({ target: outsideDiv } as unknown as MouseEvent);
+    expect(component.isCollapsed()).toBeTrue();
+
+    outsideDiv.remove();
+  });
+
+  it('should not close mobile menu when clicking inside header', () => {
+    component.isCollapsed.set(false);
+    fixture.detectChanges();
+
+    const header = fixture.nativeElement.querySelector('.app-header');
+    component.onDocumentClick({ target: header } as unknown as MouseEvent);
+    expect(component.isCollapsed()).toBeFalse();
+  });
+
+  it('should close mobile menu on escape key press', () => {
+    component.isCollapsed.set(false);
+    component.onEscape();
+    expect(component.isCollapsed()).toBeTrue();
+  });
 });

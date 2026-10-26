@@ -4,8 +4,28 @@
   margin: 0 auto;
 }
 
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+  transition: color 150ms ease;
+
+  &:hover {
+    color: var(--ink-hover);
+    text-decoration: underline;
+  }
+}
+
 .form-card {
   padding: 38px 42px;
+  border-radius: 16px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 
   @media (max-width: 767.98px) {
     padding: 26px 20px;
@@ -51,4 +71,126 @@
   font-size: 16px;
   color: var(--muted);
   margin-bottom: 0;
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.form-optional {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-left: 4px;
+}
+
+.char-counter {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.form-control {
+  height: 46px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  color: var(--text);
+
+  &:focus {
+    border-color: var(--info);
+    box-shadow: 0 0 0 3px rgba(46, 144, 250, 0.12);
+    outline: none;
+  }
+
+  &.is-invalid {
+    border-color: var(--danger);
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(240, 68, 56, 0.12);
+    }
+  }
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 120px;
+  resize: vertical;
+}
+
+.date-picker-group {
+  .input-icon-btn {
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--muted);
+    cursor: pointer;
+    z-index: 4;
+    transition: color 150ms ease, background-color 150ms ease;
+
+    &:hover {
+      color: var(--ink);
+      background-color: var(--surface-2);
+    }
+  }
+
+  .form-control {
+    padding-left: 42px;
+  }
+}
+
+input[type="date"].form-control {
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text);
+
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    font-size: 16px;
+    padding: 6px;
+    border-radius: 6px;
+    opacity: 0.7;
+    margin-right: 4px;
+    transition: opacity 150ms ease, background-color 150ms ease;
+
+    &:hover {
+      opacity: 1;
+      background-color: var(--surface-2);
+    }
+  }
+}
+
+:host-context([data-bs-theme="dark"]) input[type="date"].form-control::-webkit-calendar-picker-indicator {
+  filter: invert(0.85);
+}
+
+.invalid-feedback {
+  font-size: 13px;
+  color: var(--danger);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  margin-top: 24px;
+
+  @media (max-width: 575.98px) {
+    .btn {
+      flex: 1;
+    }
+  }
 }

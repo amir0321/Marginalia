@@ -1,13 +1,22 @@
 import { Injectable, signal } from '@angular/core';
-import { Toast } from './models';
+import { Toast, ToastAction } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class ToastService {
   readonly toasts = signal<Toast[]>([]);
 
-  show(message: string, type: Toast['type'] = 'info', autohide = true): string {
+  show(
+    message: string,
+    type: Toast['type'] = 'info',
+    autohide = true,
+    action?: ToastAction
+  ): string {
     const id = crypto.randomUUID();
-    this.toasts.update(list => [...list, { id, message, type, autohide }]);
+    const toast: Toast = { id, message, type, autohide };
+    if (action) {
+      toast.action = action;
+    }
+    this.toasts.update(list => [...list, toast]);
     if (autohide) {
       setTimeout(() => this.dismiss(id), 5000);
     }
