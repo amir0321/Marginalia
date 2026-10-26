@@ -162,6 +162,7 @@ public sealed class AuthControllerTests : IDisposable
     [InlineData("anvandare@doman", "starktLosenord123", "Användarnamnet får bara innehålla bokstäver, siffror, punkt, understreck och bindestreck")]
     [InlineData("giltig_anvandare", "", "Ange ett lösenord")]
     [InlineData("giltig_anvandare", "1234567", "Använd minst 8 tecken")]
+    [InlineData("giltig_anvandare", "detta_losenord_ar_langre_an_128_tecken_vilket_ar_alldeles_for_langt_och_ska_stoppas_for_att_skydda_mot_pbkdf2_cpu_dos_i_hela_marginalia_systemet_extra_tecken_har", "Lösenordet får vara högst 128 tecken")]
     public async Task Register_InvalidInput_Returns400ValidationProblemDetails_AndSavesNoUser(string username, string password, string expectedError)
     {
         var controller = CreateController();
@@ -251,6 +252,8 @@ public sealed class AuthControllerTests : IDisposable
     [InlineData("   ", "starktLosenord123", "Ange ett användarnamn")]
     [InlineData("bokmalen", "", "Ange ett lösenord")]
     [InlineData("bokmalen", "1234567", "Använd minst 8 tecken")]
+    [InlineData("anvandarnamn_som_ar_langre_an_trettio_tecken", "starktLosenord123", "Användarnamnet får vara högst 30 tecken")]
+    [InlineData("bokmalen", "detta_losenord_ar_langre_an_128_tecken_vilket_ar_alldeles_for_langt_och_ska_stoppas_for_att_skydda_mot_pbkdf2_cpu_dos_i_hela_marginalia_systemet_extra_tecken_har", "Lösenordet får vara högst 128 tecken")]
     public async Task Login_InvalidInput_Returns400ValidationProblemDetails(string username, string password, string expectedError)
     {
         var controller = CreateController();
@@ -264,6 +267,44 @@ public sealed class AuthControllerTests : IDisposable
         var problem = Assert.IsAssignableFrom<ValidationProblemDetails>(objectResult.Value);
         var allErrors = problem.Errors.Values.SelectMany(v => v).ToList();
         Assert.Contains(allErrors, error => error == expectedError);
+    }
+
+    [Fact]
+    public async Task Login_WhenRehashNeeded_UpdatesPasswordHashInDatabase()
+    {
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Username = "rehashuser",
+            UsernameNormalized = "REHASHUSER",
+            PasswordHash = "old_legacy_hash"
+        };
+        _db.Users.Add(user);
+        await _db.SaveChangesAsync();
+
+        var hasher = new RehashPasswordHasher();
+        var controller = new AuthController(_db, hasher, _tokenService)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext { RequestServices = _serviceProvider }
+            }
+        };
+
+        var result = await controller.Login(new LoginRequest("rehashuser", "starktLosenord123"), CancellationToken.None);
+        Assert.IsType<OkObjectResult>(result);
+
+        var updatedUser = await _db.Users.SingleAsync(u => u.Id == user.Id);
+        Assert.Equal("new_upgraded_hash", updatedUser.PasswordHash);
+    }
+
+    private sealed class RehashPasswordHasher : IPasswordHasher<User>
+    {
+        public string HashPassword(User user, string password) => "new_upgraded_hash";
+        public PasswordVerificationResult VerifyHashedPassword(User user, string hashedPassword, string providedPassword)
+        {
+            return PasswordVerificationResult.SuccessRehashNeeded;
+        }
     }
 
     private sealed class ThrowingUniqueIndexDbContext(DbContextOptions<AppDbContext> options) : AppDbContext(options)

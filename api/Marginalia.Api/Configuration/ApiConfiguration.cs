@@ -1,6 +1,10 @@
 using System.Text;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
@@ -25,6 +29,9 @@ public class JwtSettings
             ValidAudience = Audience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Key)),
             ClockSkew = TimeSpan.FromMinutes(1),
+            ValidAlgorithms = [SecurityAlgorithms.HmacSha256],
+            RequireExpirationTime = true,
+            RequireSignedTokens = true,
         };
     }
 }
@@ -111,6 +118,42 @@ public static class ApiConfiguration
             .AddJwtBearer(options => ConfigureJwtBearer(options, jwtSettings));
 
         services.AddAuthorization(ConfigureAuthorization);
+
+        return services;
+    }
+
+    public static IServiceCollection AddMarginaliaRateLimiting(this IServiceCollection services)
+    {
+        services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            options.OnRejected = async (context, cancellationToken) =>
+            {
+                context.HttpContext.Response.ContentType = "application/problem+json";
+                var problemDetails = new ProblemDetails
+                {
+                    Status = StatusCodes.Status429TooManyRequests,
+                    Title = "Too Many Requests",
+                    Detail = "För många försök. Vänta en stund och försök igen."
+                };
+                await context.HttpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken: cancellationToken);
+            };
+
+            options.AddPolicy("auth", httpContext =>
+            {
+                var ip = httpContext.Connection.RemoteIpAddress?.ToString()
+                    ?? httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+                    ?? "unknown";
+
+                return RateLimitPartition.GetFixedWindowLimiter(ip, _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 10,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    QueueLimit = 0
+                });
+            });
+        });
 
         return services;
     }

@@ -38,6 +38,14 @@ public class AuthDtosTests
     }
 
     [Fact]
+    public void RegisterRequest_WithLongPassword_FailsValidation()
+    {
+        var request = new RegisterRequest("bokmalen", new string('a', 129));
+        var errors = ValidateModel(request);
+        Assert.Contains(errors, e => e.ErrorMessage == "Lösenordet får vara högst 128 tecken");
+    }
+
+    [Fact]
     public void LoginRequest_WithValidData_PassesValidation()
     {
         var request = new LoginRequest("bokmalen", "hemligt123");
@@ -51,5 +59,21 @@ public class AuthDtosTests
         var request = new LoginRequest("bokmalen", "123");
         var errors = ValidateModel(request);
         Assert.Contains(errors, e => e.ErrorMessage == "Använd minst 8 tecken");
+    }
+
+    [Fact]
+    public void LoginRequest_WithLongPassword_FailsValidation()
+    {
+        var request = new LoginRequest("bokmalen", new string('a', 129));
+        var errors = ValidateModel(request);
+        Assert.Contains(errors, e => e.ErrorMessage == "Lösenordet får vara högst 128 tecken");
+    }
+
+    [Fact]
+    public void LoginRequest_WithLongUsername_FailsValidation()
+    {
+        var request = new LoginRequest(new string('a', 31), "hemligt123");
+        var errors = ValidateModel(request);
+        Assert.Contains(errors, e => e.ErrorMessage == "Användarnamnet får vara högst 30 tecken");
     }
 }

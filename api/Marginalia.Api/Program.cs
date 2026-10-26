@@ -13,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.ForwardLimit = 2;
     options.KnownNetworks.Clear();
     options.KnownProxies.Clear();
 });
@@ -32,6 +33,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 var jwtSettings = ApiConfiguration.GetValidatedJwtSettings(builder.Configuration);
 builder.Services.AddSingleton(jwtSettings);
 builder.Services.AddMarginaliaAuth(jwtSettings);
+builder.Services.AddMarginaliaRateLimiting();
 
 builder.Services.AddScoped(sp => new TokenService(sp.GetRequiredService<JwtSettings>()));
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
@@ -50,8 +52,24 @@ using (var scope = app.Services.CreateScope())
 
 app.UseForwardedHeaders();
 
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+
+    if (context.Request.Path.StartsWithSegments("/api"))
+    {
+        context.Response.Headers.Append("Cache-Control", "no-store");
+    }
+
+    await next();
+});
+
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+
+app.UseRateLimiter();
 
 if (app.Environment.IsDevelopment())
 {

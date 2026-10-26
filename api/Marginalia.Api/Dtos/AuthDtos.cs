@@ -11,6 +11,7 @@ public record RegisterRequest
 
     [Required(ErrorMessage = "Ange ett lösenord")]
     [MinLength(8, ErrorMessage = "Använd minst 8 tecken")]
+    [MaxLength(128, ErrorMessage = "Lösenordet får vara högst 128 tecken")]
     public string Password { get; init; } = string.Empty;
 
     public RegisterRequest() { }
@@ -31,10 +32,12 @@ public record RegisterRequest
 public record LoginRequest
 {
     [Required(ErrorMessage = "Ange ett användarnamn", AllowEmptyStrings = false)]
+    [MaxLength(30, ErrorMessage = "Användarnamnet får vara högst 30 tecken")]
     public string Username { get; init; } = string.Empty;
 
     [Required(ErrorMessage = "Ange ett lösenord")]
     [MinLength(8, ErrorMessage = "Använd minst 8 tecken")]
+    [MaxLength(128, ErrorMessage = "Lösenordet får vara högst 128 tecken")]
     public string Password { get; init; } = string.Empty;
 
     public LoginRequest() { }
