@@ -110,22 +110,55 @@ describe('BookListComponent', () => {
     expect(component.books().length).toBe(3);
   });
 
-  it('should filter books based on search query', () => {
+  it('should filter books by title', () => {
     fixture.detectChanges();
 
-    component.searchQuery.set('boye');
+    component.searchQuery.set('eget');
     fixture.detectChanges();
 
     const filtered = component.filteredBooks();
     expect(filtered.length).toBe(1);
-    expect(filtered[0].title).toBe('Kallocain');
+    expect(filtered[0].title).toBe('Ett eget rum');
+  });
 
-    // When search yields no results
+  it('should filter books by author', () => {
+    fixture.detectChanges();
+
+    component.searchQuery.set('martinson');
+    fixture.detectChanges();
+
+    const filtered = component.filteredBooks();
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].author).toBe('Harry Martinson');
+  });
+
+  it('should show empty state when search query yields no matches', () => {
+    fixture.detectChanges();
+
     component.searchQuery.set('inte-en-bok');
     fixture.detectChanges();
 
     const el = fixture.nativeElement as HTMLElement;
     expect(el.textContent).toContain('Inga böcker matchade din sökning');
+    expect(component.filteredBooks().length).toBe(0);
+  });
+
+  it('should clear search query and restore books when clicking "Rensa sökning" button', () => {
+    fixture.detectChanges();
+
+    component.searchQuery.set('okänd-bok');
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    const clearButton = el.querySelector('app-empty-state button.btn-secondary') as HTMLButtonElement;
+    expect(clearButton).toBeTruthy();
+    expect(clearButton.textContent?.trim()).toBe('Rensa sökning');
+
+    clearButton.click();
+    fixture.detectChanges();
+
+    expect(component.searchQuery()).toBe('');
+    expect(component.filteredBooks().length).toBe(3);
   });
 
   it('should sort books by title ascending or date descending', () => {
@@ -144,6 +177,66 @@ describe('BookListComponent', () => {
     expect(sorted[0].title).toBe('Aniara'); // 1956
     expect(sorted[1].title).toBe('Kallocain'); // 1940
     expect(sorted[2].title).toBe('Ett eget rum'); // 1929
+  });
+
+  it('should sort by title as secondary criteria when publishedDate is identical in date-desc sort', () => {
+    const booksWithSameDate: Book[] = [
+      {
+        id: 'book-a',
+        title: 'Ögonblick',
+        author: 'Författare A',
+        publishedDate: '2020-05-01',
+        description: '',
+      },
+      {
+        id: 'book-b',
+        title: 'Bokstavslek',
+        author: 'Författare B',
+        publishedDate: '2020-05-01',
+        description: '',
+      },
+      {
+        id: 'book-c',
+        title: 'Apelsinträdet',
+        author: 'Författare C',
+        publishedDate: '2020-05-01',
+        description: '',
+      },
+      {
+        id: 'book-d',
+        title: 'Zorn',
+        author: 'Författare D',
+        publishedDate: '2019-01-01',
+        description: '',
+      },
+    ];
+
+    fixture.detectChanges();
+
+    component.books.set(booksWithSameDate);
+    component.sortBy.set('date-desc');
+
+    const sorted = component.filteredBooks();
+    expect(sorted.length).toBe(4);
+    // Same date books sorted by title A-Ö with Swedish collation: Apelsinträdet -> Bokstavslek -> Ögonblick
+    expect(sorted[0].title).toBe('Apelsinträdet');
+    expect(sorted[1].title).toBe('Bokstavslek');
+    expect(sorted[2].title).toBe('Ögonblick');
+    // Older date
+    expect(sorted[3].title).toBe('Zorn');
+  });
+
+  it('should have semantic label associated with the search input', () => {
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    const label = el.querySelector('label[for="book-search"]') as HTMLLabelElement;
+    const input = el.querySelector('#book-search') as HTMLInputElement;
+
+    expect(label).toBeTruthy();
+    expect(label.classList.contains('visually-hidden')).toBeTrue();
+    expect(label.textContent?.trim()).toBe('Sök efter titel eller författare');
+    expect(input).toBeTruthy();
+    expect(input.id).toBe('book-search');
   });
 
   it('should open BookDetailModalComponent when openDetail is called', () => {

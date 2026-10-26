@@ -99,6 +99,34 @@ Alla `/api/*`-anrop proxyas automatiskt till `http://localhost:5080`.
 | Hälsokontroll (direkt) | http://localhost:5080/api/health |
 | API-dokumentation (Scalar) | http://localhost:5080/scalar |
 
+## Köra tester och kvalitetssäkring
+
+Samtliga delar av projektet har heltäckande enhetstester och kan köras lokalt med följande kommandon:
+
+### 1. Kör alla API-tester
+Kör alla .NET 9-enhetstester och integrationstester:
+```bash
+cd api && dotnet test
+```
+
+### 2. Kör alla frontend-enhetstester
+Kör alla Angular-tester i headless-läge (Karma + ChromeHeadless):
+```bash
+cd web && npx ng test --watch=false --browsers=ChromeHeadless
+```
+
+### 3. Testa CI-kommandona i Docker
+Verifiera att API:ets Dockerfile bygger felfritt:
+```bash
+docker build -t marginalia-api:ci ./api/Marginalia.Api
+```
+
+### 4. Bygg frontend för produktion
+Verifiera att produktionspaketet byggs utan fel eller budgetvarningar:
+```bash
+cd web && npm run build
+```
+
 ## Arkitektur och hosting
 
 Marginalia använder en same-origin-arkitektur baserad på omvänd proxy (reverse proxy), vilket eliminerar behovet av CORS (Cross-Origin Resource Sharing) helt och hållet:
@@ -145,13 +173,46 @@ Valet att lagra JWT i `localStorage` gjordes medvetet utifrån applikationens ar
   - Backend validerar och sanerar all indata strikt.
   - Kort livslängd på JWT (60 minuter) och ingen refresh token minskar fönstret för ett eventuellt kapat token.
 
-## Arbetssätt
-- `main` är alltid fungerande och är det som publiceras.
-- Allt arbete sker i feature-brancher som mergas via pull request.
-- Branch-namn: `feat/<issue>-kort-namn`, `fix/...`, `docs/...`, `chore/...`
-- Commit-meddelanden: `feat: lägg till bokformulär (#12)`
-- Pull requests innehåller `Closes #12`, så stängs issuen automatiskt.
-- Uppgifterna hanteras på GitHub Project-tavlan med epics, stories och milstolpar.
+## CI/CD-pipeline (GitHub Actions)
+
+Projektet använder en automatiserad kontinuerlig integrationspipeline via GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)).
+
+- **Triggers:** Körs automatiskt vid varje `push` samt `pull_request` mot brancherna `main` och `develop`.
+- **Tre parallella jobb:**
+  1. **`api` (.NET 9):**
+     - Sätter upp .NET 9 SDK
+     - Kör `dotnet restore`
+     - Bygger solutionen: `dotnet build --configuration Release --no-restore`
+     - Kör samtliga tester: `dotnet test --configuration Release --no-build`
+  2. **`web` (Angular 20):**
+     - Sätter upp Node.js 20 med npm-cache (`package-lock.json`)
+     - Installerar rena beroenden: `npm ci`
+     - Bygger produktionspaketet: `npm run build`
+     - Kör samtliga enhetstester: `npx ng test --watch=false --browsers=ChromeHeadless`
+  3. **`docker` (Container Build):**
+     - Verifierar att API-containern bygger felfritt: `docker build -t marginalia-api:ci ./api/Marginalia.Api`
+
+## Versionshantering och arbetssätt
+
+- **Branch-strategi:**
+  - `main`: Alltid stabil och produktionsredo version (speglar driftmiljön).
+  - `develop`: Huvudsaklig integrationsbranch där färdiga funktioner sammanförs.
+  - Feature-brancher skapas från `develop` eller aktuell bas och namnges enligt:
+    - `feat/<issue>-<kort-namn>` för nya funktioner (t.ex. `feat/20-33-search-sort-and-ci`)
+    - `fix/<issue>-<kort-namn>` för buggrättningar
+    - `docs/<issue>-<kort-namn>` för dokumentation
+    - `chore/<issue>-<kort-namn>` för underhåll, byggskript och beroenden
+- **Commit-meddelanden:**
+  - Skrivs på engelska i imperativ form med referens till issue:
+    - `feat: add book search and secondary sorting (#20)`
+    - `ci: configure GitHub Actions workflow for api, web and docker (#33)`
+    - `docs: update readme with testing and version control guide`
+- **Pull Requests:**
+  - PR öppnas mot målgrenen (`develop` eller `main`).
+  - PR-mallen ska innehålla: vad som har ändrats, varför ändringen gjordes, hur ändringen testats, samt `Closes #<issue>` för att koppla och stänga ärendet automatiskt vid merge.
+  - Alla jobb i CI-pipelinen (`api`, `web`, `docker`) måste passera grönt innan en PR får mergas.
+- **Projektstyrning:**
+  - Uppgifterna hanteras på GitHub Project-tavlan med epics, stories och tydliga acceptanskriterier.
 
 ## Antaganden och beslut
 
