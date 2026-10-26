@@ -48,7 +48,13 @@ export class BookListComponent implements OnInit {
     if (this.sortBy() === 'title-asc') {
       result.sort((a, b) => a.title.localeCompare(b.title, 'sv'));
     } else {
-      result.sort((a, b) => b.publishedDate.localeCompare(a.publishedDate));
+      result.sort((a, b) => {
+        const dateComparison = b.publishedDate.localeCompare(a.publishedDate);
+        if (dateComparison !== 0) {
+          return dateComparison;
+        }
+        return a.title.localeCompare(b.title, 'sv');
+      });
     }
 
     return result;

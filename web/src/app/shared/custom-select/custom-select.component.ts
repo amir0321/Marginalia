@@ -1,4 +1,4 @@
-import { Component, input, model, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, model, computed } from '@angular/core';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 
 export interface SelectOption<T = string> {
@@ -12,6 +12,7 @@ export interface SelectOption<T = string> {
   imports: [NgbDropdownModule],
   templateUrl: './custom-select.component.html',
   styleUrl: './custom-select.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomSelectComponent<T = string> {
   readonly options = input.required<SelectOption<T>[]>();
