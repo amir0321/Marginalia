@@ -1,13 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { ShellComponent } from './shell.component';
 import { AuthService } from '../../core/auth.service';
 import { ThemeService } from '../../core/theme.service';
 
+@Component({ standalone: true, template: '' })
+class DummyComponent {}
+
 describe('ShellComponent', () => {
   let component: ShellComponent;
   let fixture: ComponentFixture<ShellComponent>;
+  let router: Router;
   let authSpy: jasmine.SpyObj<AuthService>;
   let themeSpy: jasmine.SpyObj<ThemeService>;
   const isLoggedInSignal = signal(false);
@@ -29,12 +33,16 @@ describe('ShellComponent', () => {
     await TestBed.configureTestingModule({
       imports: [ShellComponent],
       providers: [
-        provideRouter([]),
+        provideRouter([
+          { path: 'books', component: DummyComponent },
+          { path: 'quotes', component: DummyComponent },
+        ]),
         { provide: AuthService, useValue: authSpy },
         { provide: ThemeService, useValue: themeSpy },
       ],
     }).compileComponents();
 
+    router = TestBed.inject(Router);
     fixture = TestBed.createComponent(ShellComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -50,6 +58,53 @@ describe('ShellComponent', () => {
     component.isCollapsed.set(false);
     fixture.detectChanges();
     expect(header?.classList.contains('is-open')).toBeTrue();
+  });
+
+  it('should render navigation links for Böcker and Mina citat', () => {
+    const links = fixture.nativeElement.querySelectorAll('.app-nav .nav-link');
+    expect(links.length).toBe(2);
+
+    const booksLink = fixture.nativeElement.querySelector('a[routerLink="/books"]');
+    const quotesLink = fixture.nativeElement.querySelector('a[routerLink="/quotes"]');
+
+    expect(booksLink).toBeTruthy();
+    expect(booksLink.textContent).toContain('Böcker');
+    expect(booksLink.querySelector('.fa-book')).toBeTruthy();
+
+    expect(quotesLink).toBeTruthy();
+    expect(quotesLink.textContent).toContain('Mina citat');
+    expect(quotesLink.querySelector('.fa-quote-left')).toBeTruthy();
+  });
+
+  it('should mark active link and set aria-current="page" upon navigation', async () => {
+    const booksLink: HTMLElement = fixture.nativeElement.querySelector('a[routerLink="/books"]');
+    const quotesLink: HTMLElement = fixture.nativeElement.querySelector('a[routerLink="/quotes"]');
+
+    await router.navigate(['/books']);
+    fixture.detectChanges();
+
+    expect(booksLink.classList.contains('active')).toBeTrue();
+    expect(booksLink.getAttribute('aria-current')).toBe('page');
+    expect(quotesLink.classList.contains('active')).toBeFalse();
+    expect(quotesLink.getAttribute('aria-current')).toBeFalsy();
+
+    await router.navigate(['/quotes']);
+    fixture.detectChanges();
+
+    expect(quotesLink.classList.contains('active')).toBeTrue();
+    expect(quotesLink.getAttribute('aria-current')).toBe('page');
+    expect(booksLink.classList.contains('active')).toBeFalse();
+    expect(booksLink.getAttribute('aria-current')).toBeFalsy();
+  });
+
+  it('should collapse mobile navbar when clicking a nav link', () => {
+    component.isCollapsed.set(false);
+    fixture.detectChanges();
+
+    const quotesLink: HTMLElement = fixture.nativeElement.querySelector('a[routerLink="/quotes"]');
+    quotesLink.click();
+
+    expect(component.isCollapsed()).toBeTrue();
   });
 
   it('should calculate userInitials properly', () => {

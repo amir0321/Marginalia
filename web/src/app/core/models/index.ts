@@ -21,10 +21,13 @@ export interface BookRequest {
 
 export interface Quote {
   id: string;
-  userId: string;
   text: string;
   author: string;
-  createdAt: string;
+}
+
+export interface QuoteRequest {
+  text: string;
+  author: string;
 }
 
 export interface AuthResponse {
