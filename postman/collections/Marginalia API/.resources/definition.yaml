@@ -6,7 +6,7 @@ variables:
   bookId: 00000000-0000-0000-0000-000000000000
   quoteId: 00000000-0000-0000-0000-000000000000
 auth:
-  - id: aeb7320b-a248-46ea-9b30-3f3fc73aba62
+  - id: 80a70ef5-e89d-461e-b7b1-cd61fa225dbc
     type: bearer
     name: bearer auth
     credentials:

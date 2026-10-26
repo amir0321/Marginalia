@@ -1,0 +1,5 @@
+$kind: http-request
+description: Hämtar en enskild bok som tillhör den inloggade användaren (används t.ex. vid redigering). Ger 404 om boken saknas eller tillhör en annan användare.
+url: "{{baseUrl}}/api/books/{{bookId}}"
+method: GET
+order: 2000

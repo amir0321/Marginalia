@@ -1,5 +1,0 @@
-$kind: http-request
-description: Returnerar den inloggade användarens alla böcker sorterade efter titel.
-url: "{{baseUrl}}/api/books"
-method: GET
-order: 1000

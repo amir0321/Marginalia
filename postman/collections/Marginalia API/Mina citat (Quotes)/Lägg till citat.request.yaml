@@ -1,5 +1,5 @@
 $kind: http-request
-description: Sparar ett nytt citat. Returnerar 409 Conflict om användaren redan har 5 sparade citat.
+description: Sparar ett nytt favoritcitat för den inloggade användaren. Ger 409 Conflict om användaren redan har 5 sparade citat.
 url: "{{baseUrl}}/api/quotes"
 method: POST
 headers:

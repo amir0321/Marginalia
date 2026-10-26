@@ -123,7 +123,7 @@
 			"name": "Böcker (Books)",
 			"item": [
 				{
-					"name": "Hämta alla böcker",
+					"name": "Hämta mina böcker",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -137,12 +137,12 @@
 								"books"
 							]
 						},
-						"description": "Returnerar den inloggade användarens alla böcker sorterade efter titel."
+						"description": "Returnerar endast den inloggade användarens böcker (hämtade via JWT-token). Ingen användare kan se andras böcker."
 					},
 					"response": []
 				},
 				{
-					"name": "Hämta specifik bok",
+					"name": "Hämta en specifik bok",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -157,12 +157,12 @@
 								"{{bookId}}"
 							]
 						},
-						"description": "Returnerar en specifik bok för den inloggade användaren. Ger 404 om boken tillhör någon annan."
+						"description": "Hämtar en enskild bok som tillhör den inloggade användaren (används t.ex. vid redigering). Ger 404 om boken saknas eller tillhör en annan användare."
 					},
 					"response": []
 				},
 				{
-					"name": "Skapa ny bok",
+					"name": "Lägg till ny bok",
 					"event": [
 						{
 							"listen": "test",
@@ -202,12 +202,12 @@
 								"books"
 							]
 						},
-						"description": "Lägger till en ny bok i användarens samling."
+						"description": "Lägger till en ny bok i den inloggade användarens personliga samling."
 					},
 					"response": []
 				},
 				{
-					"name": "Uppdatera bok",
+					"name": "Redigera bok",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -231,7 +231,7 @@
 								"{{bookId}}"
 							]
 						},
-						"description": "Uppdaterar titel, författare, datum eller beskrivning för en befintlig bok."
+						"description": "Uppdaterar titel, författare, datum eller beskrivning för en befintlig bok som tillhör den inloggade användaren."
 					},
 					"response": []
 				},
@@ -251,7 +251,7 @@
 								"{{bookId}}"
 							]
 						},
-						"description": "Tar bort boken från användarens samling (204 No Content)."
+						"description": "Tar bort boken från användarens samling (204 No Content). Ger 404 om boken tillhör någon annan."
 					},
 					"response": []
 				}
@@ -261,7 +261,7 @@
 			"name": "Mina citat (Quotes)",
 			"item": [
 				{
-					"name": "Hämta alla citat",
+					"name": "Hämta mina citat",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -275,12 +275,12 @@
 								"quotes"
 							]
 						},
-						"description": "Returnerar användarens sparade favoritcitat (äldst först, max 5 stycken)."
+						"description": "Returnerar endast den inloggade användarens sparade favoritcitat (äldst först, max 5 stycken)."
 					},
 					"response": []
 				},
 				{
-					"name": "Skapa nytt citat",
+					"name": "Lägg till citat",
 					"event": [
 						{
 							"listen": "test",
@@ -320,12 +320,12 @@
 								"quotes"
 							]
 						},
-						"description": "Sparar ett nytt citat. Returnerar 409 Conflict om användaren redan har 5 sparade citat."
+						"description": "Sparar ett nytt favoritcitat för den inloggade användaren. Ger 409 Conflict om användaren redan har 5 sparade citat."
 					},
 					"response": []
 				},
 				{
-					"name": "Uppdatera citat",
+					"name": "Redigera citat",
 					"request": {
 						"method": "PUT",
 						"header": [
@@ -349,7 +349,7 @@
 								"{{quoteId}}"
 							]
 						},
-						"description": "Uppdaterar citatets text och författare."
+						"description": "Uppdaterar citatets text och författare för den inloggade användaren."
 					},
 					"response": []
 				},
@@ -369,7 +369,7 @@
 								"{{quoteId}}"
 							]
 						},
-						"description": "Tar bort citatet från användarens samling (204 No Content)."
+						"description": "Tar bort citatet från användarens samling (204 No Content). Ger 404 om citatet tillhör någon annan."
 					},
 					"response": []
 				}
