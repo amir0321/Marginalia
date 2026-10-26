@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, computed, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, computed, inject, signal, ElementRef, HostListener } from '@angular/core';
 import { Router, NavigationEnd, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs/operators';
@@ -28,6 +28,7 @@ export class ShellComponent {
   readonly auth = inject(AuthService);
   readonly theme = inject(ThemeService);
   private readonly router = inject(Router);
+  private readonly elementRef = inject(ElementRef);
   readonly isCollapsed = signal(true);
 
   private readonly currentUrl = toSignal(
@@ -52,6 +53,24 @@ export class ShellComponent {
     }
     return name.slice(0, 2).toUpperCase();
   });
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (this.isCollapsed()) return;
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
+    const header = this.elementRef.nativeElement.querySelector('.app-header');
+    if (header && !header.contains(target)) {
+      this.isCollapsed.set(true);
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (!this.isCollapsed()) {
+      this.isCollapsed.set(true);
+    }
+  }
 
   logout(): void {
     this.isCollapsed.set(true);

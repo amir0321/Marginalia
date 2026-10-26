@@ -22,11 +22,15 @@
   letter-spacing: -0.025em;
   color: var(--text);
   margin-bottom: 8px;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .confirm-modal-msg {
   font-size: 15px;
   color: var(--text);
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .confirm-modal-support {

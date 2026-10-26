@@ -6,12 +6,17 @@ export interface User {
 
 export interface Book {
   id: string;
-  userId: string;
   title: string;
   author: string;
   publishedDate: string;
-  description?: string;
-  createdAt: string;
+  description?: string | null;
+}
+
+export interface BookRequest {
+  title: string;
+  author: string;
+  publishedDate: string;
+  description?: string | null;
 }
 
 export interface Quote {
@@ -38,11 +43,17 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface ToastAction {
+  label: string;
+  onClick: () => void;
+}
+
 export interface Toast {
   id: string;
   message: string;
   type: 'success' | 'danger' | 'warning' | 'info';
   autohide?: boolean;
+  action?: ToastAction;
 }
 
 export interface ProblemDetails {

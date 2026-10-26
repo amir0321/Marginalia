@@ -46,4 +46,18 @@ describe('ToastService', () => {
     tick(1);
     expect(service.toasts().length).toBe(0);
   }));
+
+  it('should support toast with an action callback', () => {
+    let actionTriggered = false;
+    const id = service.show('Bok raderad', 'success', false, {
+      label: 'Ångra',
+      onClick: () => { actionTriggered = true; },
+    });
+
+    const toast = service.toasts().find(t => t.id === id);
+    expect(toast?.action?.label).toBe('Ångra');
+
+    toast?.action?.onClick();
+    expect(actionTriggered).toBeTrue();
+  });
 });

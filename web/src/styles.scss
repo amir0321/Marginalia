@@ -460,6 +460,10 @@ textarea.form-control {
   resize: vertical;
 }
 
+[data-bs-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.85);
+}
+
 .input-icon-group {
   position: relative;
 

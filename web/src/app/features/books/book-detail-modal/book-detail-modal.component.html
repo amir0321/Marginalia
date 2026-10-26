@@ -1,0 +1,57 @@
+<div class="book-detail-wrapper">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="overline mb-0">BOKDETALJER</span>
+    <button
+      type="button"
+      class="btn-icon"
+      aria-label="Stäng dialog"
+      (click)="activeModal.dismiss('close')"
+    >
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  @if (book(); as b) {
+    <header class="d-flex align-items-start gap-3 mb-4">
+      <div class="book-glyph" aria-hidden="true">
+        <i class="fa-solid fa-book-open"></i>
+      </div>
+      <div class="flex-grow-1 min-w-0">
+        <h2 class="book-detail-title mb-1">{{ b.title }}</h2>
+        <p class="book-detail-author mb-1">{{ b.author }}</p>
+        <time class="book-detail-date text-muted" [attr.datetime]="b.publishedDate">
+          Publicerad {{ b.publishedDate | date:'d MMMM yyyy' }}
+        </time>
+      </div>
+    </header>
+
+    <div class="book-detail-body mb-4">
+      <h3 class="book-detail-section-title">Beskrivning</h3>
+      @if (b.description) {
+        <div class="book-detail-box">
+          <p class="book-detail-text mb-0">{{ b.description }}</p>
+        </div>
+      } @else {
+        <p class="text-muted fst-italic mb-0">Ingen beskrivning har angetts för denna bok.</p>
+      }
+    </div>
+
+    <footer class="book-detail-footer">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="activeModal.dismiss('close')"
+      >
+        Stäng
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary d-inline-flex align-items-center gap-2"
+        (click)="onEdit()"
+      >
+        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+        <span>Redigera bok</span>
+      </button>
+    </footer>
+  }
+</div>

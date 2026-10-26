@@ -9,6 +9,7 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: var(--shadow-lg);
+  pointer-events: auto;
 
   @media (max-width: 575.98px) {
     min-width: calc(100vw - 32px);
@@ -65,19 +66,57 @@
   background: none;
   border: none;
   color: var(--muted);
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 6px;
   cursor: pointer;
+  pointer-events: auto;
   padding: 0;
   flex-shrink: 0;
-  font-size: 13px;
-  transition: color 180ms ease;
+  font-size: 14px;
+  transition: color 180ms ease, background-color 180ms ease;
 
   &:hover {
     color: var(--text);
+    background-color: var(--surface-2);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 1px;
+  }
+}
+
+.toast-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 150ms ease;
+
+  &:hover {
+    background-color: var(--border);
+    color: var(--text);
+    border-color: var(--muted);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
   }
 }
