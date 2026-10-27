@@ -16,6 +16,21 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
+  &.clickable-card {
+    cursor: pointer;
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ink);
+      outline-offset: 2px;
+    }
+  }
 }
 
 .quote-card-header {
@@ -44,12 +59,36 @@
   align-items: center;
 }
 
+.quote-text-btn {
+  text-decoration: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+
+  &:hover .quote-card-text {
+    opacity: 0.92;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 4px;
+    border-radius: 6px;
+  }
+}
+
 .quote-card-text {
   font-family: 'Fraunces', Georgia, serif;
   font-style: italic;
   font-size: clamp(18px, 2vw, 22px);
   line-height: 1.52;
   color: var(--text);
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .quote-card-footer {

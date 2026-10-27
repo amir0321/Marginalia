@@ -1,0 +1,67 @@
+.quote-detail-wrapper {
+  padding: 26px;
+}
+
+.quote-glyph {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background-color: color-mix(in srgb, var(--amber) 12%, var(--surface));
+  color: var(--amber);
+  font-size: 20px;
+}
+
+.quote-detail-index {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--border);
+  letter-spacing: -0.02em;
+}
+
+.quote-detail-box {
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--amber);
+  border-radius: 12px;
+  padding: 20px 22px;
+}
+
+.quote-detail-text {
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-size: clamp(17px, 2.2vw, 20px);
+  line-height: 1.6;
+  color: var(--text);
+  white-space: pre-line;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.quote-detail-author {
+  font-family: 'Inter', sans-serif;
+  font-style: normal;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.quote-detail-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+
+  @media (max-width: 767.98px) {
+    .btn {
+      flex: 1;
+    }
+  }
+}

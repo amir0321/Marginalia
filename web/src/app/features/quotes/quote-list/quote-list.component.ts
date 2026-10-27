@@ -11,6 +11,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { EmptyStateComponent } from '../../../shared/empty-state/empty-state.component';
 import { ConfirmModalComponent } from '../../../shared/confirm-modal/confirm-modal.component';
 import { QuoteFormModalComponent } from '../quote-form-modal/quote-form-modal.component';
+import { QuoteDetailModalComponent } from '../quote-detail-modal/quote-detail-modal.component';
 import { QuoteService } from '../quote.service';
 import { ToastService } from '../../../core/toast.service';
 import { Quote } from '../../../core/models';
@@ -73,6 +74,34 @@ export class QuoteListComponent implements OnInit {
       (savedQuote: Quote) => {
         if (savedQuote) {
           this.quotes.update(list => [...list, savedQuote]);
+        }
+      },
+      () => {
+        // Modal dismissed
+      }
+    );
+  }
+
+  onCardClick(event: MouseEvent, quote: Quote, index: number): void {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('.quote-actions, button, a')) return;
+    this.openDetail(quote, index);
+  }
+
+  openDetail(quote: Quote, index: number): void {
+    const modalRef = this.modalService.open(QuoteDetailModalComponent, {
+      centered: true,
+      backdrop: true,
+    });
+    if (modalRef?.componentInstance) {
+      modalRef.componentInstance.quote.set(quote);
+      modalRef.componentInstance.index.set(index);
+    }
+
+    modalRef?.result?.then(
+      result => {
+        if (result === 'edit') {
+          this.onEditQuote(quote);
         }
       },
       () => {
