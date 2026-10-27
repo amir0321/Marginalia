@@ -269,6 +269,17 @@ describe('BookListComponent', () => {
     expect(component.openDetail).toHaveBeenCalledWith(component.filteredBooks()[0]);
   });
 
+  it('should call openDetail when clicking a mobile book card', () => {
+    fixture.detectChanges();
+    spyOn(component, 'openDetail');
+
+    const card = fixture.nativeElement.querySelector('.mobile-book-card') as HTMLElement;
+    expect(card).toBeTruthy();
+    card.click();
+
+    expect(component.openDetail).toHaveBeenCalledWith(component.filteredBooks()[0]);
+  });
+
   it('should open confirm modal and delete book on confirm', fakeAsync(() => {
     fixture.detectChanges();
 

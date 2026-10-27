@@ -317,4 +317,38 @@ describe('QuoteListComponent', () => {
     expect(toastServiceSpy.show).toHaveBeenCalledWith('Citatet var redan borttaget.', 'info');
     expect(component.quotes().some(q => q.id === quoteToDelete.id)).toBeFalse();
   });
+
+  it('should open QuoteDetailModalComponent when clicking a quote card or quote text', () => {
+    fixture.detectChanges();
+    spyOn(component, 'openDetail');
+
+    const card = fixture.nativeElement.querySelector('.quote-card') as HTMLElement;
+    expect(card).toBeTruthy();
+    card.click();
+
+    expect(component.openDetail).toHaveBeenCalledWith(mockQuotes[0], 1);
+  });
+
+  it('should configure QuoteDetailModalComponent and open edit modal when detail returns "edit"', async () => {
+    fixture.detectChanges();
+    spyOn(component, 'onEditQuote');
+
+    const detailModalMock = {
+      componentInstance: {
+        quote: { set: jasmine.createSpy('quote.set') },
+        index: { set: jasmine.createSpy('index.set') },
+      },
+      result: Promise.resolve('edit'),
+    };
+    modalServiceSpy.open.and.returnValue(detailModalMock as any);
+
+    component.openDetail(mockQuotes[0], 1);
+
+    expect(modalServiceSpy.open).toHaveBeenCalled();
+    expect(detailModalMock.componentInstance.quote.set).toHaveBeenCalledWith(mockQuotes[0]);
+    expect(detailModalMock.componentInstance.index.set).toHaveBeenCalledWith(1);
+
+    await detailModalMock.result;
+    expect(component.onEditQuote).toHaveBeenCalledWith(mockQuotes[0]);
+  });
 });

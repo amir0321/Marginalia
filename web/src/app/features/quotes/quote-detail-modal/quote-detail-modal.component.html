@@ -1,0 +1,51 @@
+<div class="quote-detail-wrapper" role="dialog" aria-modal="true" aria-labelledby="quote-detail-modal-title">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <span class="overline mb-0" id="quote-detail-modal-title">CITATDETALJER</span>
+    <button
+      type="button"
+      class="btn-icon"
+      aria-label="Stäng dialog"
+      (click)="activeModal.dismiss('close')"
+    >
+      <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+    </button>
+  </div>
+
+  @if (quote(); as q) {
+    <header class="d-flex align-items-center justify-content-between mb-3">
+      <div class="quote-glyph" aria-hidden="true">
+        <i class="fa-solid fa-quote-left"></i>
+      </div>
+      @if (index(); as idx) {
+        <span class="quote-detail-index" aria-hidden="true">0{{ idx }}</span>
+      }
+    </header>
+
+    <div class="quote-detail-body mb-4">
+      <blockquote class="blockquote quote-detail-box mb-0">
+        <p class="quote-detail-text mb-0">{{ q.text }}</p>
+      </blockquote>
+      <cite class="quote-detail-author mt-3 d-block">
+        {{ q.author }}
+      </cite>
+    </div>
+
+    <footer class="quote-detail-footer">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="activeModal.dismiss('close')"
+      >
+        Stäng
+      </button>
+      <button
+        type="button"
+        class="btn btn-primary d-inline-flex align-items-center gap-2"
+        (click)="onEdit()"
+      >
+        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+        <span>Redigera citat</span>
+      </button>
+    </footer>
+  }
+</div>

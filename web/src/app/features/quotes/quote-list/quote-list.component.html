@@ -83,23 +83,33 @@
 
     <section class="quotes-grid" aria-label="Mina favoritcitat">
       @for (quote of quotes(); track quote.id) {
-        <article class="card quote-card">
+        <article
+          class="card quote-card clickable-card"
+          (click)="onCardClick($event, quote, $index + 1)"
+        >
           <header class="quote-card-header">
             <i class="fa-solid fa-quote-left quote-card-icon" aria-hidden="true"></i>
             <span class="quote-card-index" aria-hidden="true">0{{ $index + 1 }}</span>
           </header>
 
           <blockquote class="blockquote quote-card-body my-3">
-            <p class="quote-card-text mb-0">
-              {{ quote.text }}
-            </p>
+            <button
+              type="button"
+              class="btn-unstyled quote-text-btn text-start p-0 w-100"
+              (click)="openDetail(quote, $index + 1)"
+              [attr.aria-label]="'Visa citatdetaljer för citat av ' + quote.author"
+            >
+              <p class="quote-card-text mb-0">
+                {{ quote.text }}
+              </p>
+            </button>
           </blockquote>
 
           <footer class="quote-card-footer">
             <cite class="quote-card-author">
               {{ quote.author }}
             </cite>
-            <div class="d-inline-flex align-items-center gap-2">
+            <div class="d-inline-flex align-items-center gap-2 quote-actions">
               <button
                 type="button"
                 class="btn-icon"
