@@ -1,0 +1,5 @@
+$kind: http-request
+description: Tar bort boken från användarens samling (204 No Content). Ger 404 om boken tillhör någon annan.
+url: "{{baseUrl}}/api/books/{{bookId}}"
+method: DELETE
+order: 5000

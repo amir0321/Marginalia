@@ -1,0 +1,144 @@
+<div class="d-flex flex-column gap-4">
+  <header class="page-header">
+    <div>
+      <span class="overline">ORD ATT ÅTERVÄNDA TILL</span>
+      <h1>Mina citat</h1>
+      <p class="page-lead">Dina fem favoritcitat, samlade på ett ställe.</p>
+    </div>
+    <div>
+      <button
+        type="button"
+        class="btn btn-primary page-header-action"
+        [disabled]="isMaxLimitReached()"
+        (click)="onAddQuote()"
+        [attr.title]="isMaxLimitReached() ? 'Du har nått maxgränsen på fem citat' : 'Lägg till citat'"
+        aria-label="Lägg till citat"
+      >
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        <span class="d-none d-md-inline ms-1">Lägg till citat</span>
+      </button>
+    </div>
+  </header>
+
+  @if (isLoading()) {
+    <div class="quotes-grid" role="status" aria-label="Hämtar dina citat">
+      <div class="card quote-card quote-skeleton">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="skeleton-block skeleton-icon"></div>
+          <div class="skeleton-block skeleton-index"></div>
+        </div>
+        <div class="my-4 d-flex flex-column gap-2">
+          <div class="skeleton-block skeleton-line w-75"></div>
+          <div class="skeleton-block skeleton-line w-100"></div>
+          <div class="skeleton-block skeleton-line w-50"></div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="skeleton-block skeleton-author"></div>
+          <div class="d-flex gap-2">
+            <div class="skeleton-block skeleton-btn"></div>
+            <div class="skeleton-block skeleton-btn"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card quote-card quote-skeleton d-none d-md-flex">
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="skeleton-block skeleton-icon"></div>
+          <div class="skeleton-block skeleton-index"></div>
+        </div>
+        <div class="my-4 d-flex flex-column gap-2">
+          <div class="skeleton-block skeleton-line w-100"></div>
+          <div class="skeleton-block skeleton-line w-75"></div>
+          <div class="skeleton-block skeleton-line w-50"></div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="skeleton-block skeleton-author"></div>
+          <div class="d-flex gap-2">
+            <div class="skeleton-block skeleton-btn"></div>
+            <div class="skeleton-block skeleton-btn"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  } @else if (errorMessage()) {
+    <app-empty-state
+      icon="fa-solid fa-circle-exclamation"
+      title="Kunde inte hämta citat"
+      [description]="errorMessage()!"
+    >
+      <button
+        type="button"
+        class="btn btn-primary retry-btn d-inline-flex align-items-center gap-2"
+        (click)="loadQuotes()"
+      >
+        <span>Försök igen</span>
+      </button>
+    </app-empty-state>
+  } @else {
+    @if (isMaxLimitReached()) {
+      <div class="alert alert-warning d-flex align-items-center gap-2 mb-0" role="status">
+        <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+        <span>Du har nått maxgränsen på fem citat. Radera ett citat för att lägga till ett nytt.</span>
+      </div>
+    }
+
+    <section class="quotes-grid" aria-label="Mina favoritcitat">
+      @for (quote of quotes(); track quote.id) {
+        <article class="card quote-card">
+          <header class="quote-card-header">
+            <i class="fa-solid fa-quote-left quote-card-icon" aria-hidden="true"></i>
+            <span class="quote-card-index" aria-hidden="true">0{{ $index + 1 }}</span>
+          </header>
+
+          <blockquote class="blockquote quote-card-body my-3">
+            <p class="quote-card-text mb-0">
+              {{ quote.text }}
+            </p>
+          </blockquote>
+
+          <footer class="quote-card-footer">
+            <cite class="quote-card-author">
+              {{ quote.author }}
+            </cite>
+            <div class="d-inline-flex align-items-center gap-2">
+              <button
+                type="button"
+                class="btn-icon"
+                (click)="onEditQuote(quote)"
+                aria-label="Redigera citat"
+              >
+                <i class="fa-solid fa-pen" aria-hidden="true"></i>
+              </button>
+              <button
+                type="button"
+                class="btn-icon is-danger"
+                (click)="onDeleteQuote(quote)"
+                aria-label="Radera citat"
+              >
+                <i class="fa-solid fa-trash" aria-hidden="true"></i>
+              </button>
+            </div>
+          </footer>
+        </article>
+      }
+
+      @if (!isMaxLimitReached()) {
+        <button
+          type="button"
+          class="card dashed-quote-card"
+          (click)="onAddQuote()"
+          aria-label="Lägg till ytterligare ett citat"
+        >
+          <div class="dashed-quote-circle" aria-hidden="true">
+            <i class="fa-solid fa-plus"></i>
+          </div>
+          <h2 class="dashed-quote-title">
+            Lägg till ditt {{ nextOrdinalWord() }} citat
+          </h2>
+          <p class="dashed-quote-lead">
+            Spara ett stycke du vill minnas
+          </p>
+        </button>
+      }
+    </section>
+  }
+</div>

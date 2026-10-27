@@ -1,0 +1,12 @@
+<section class="card empty-state-card text-center" role="status">
+  <div class="empty-state-icon-plate mb-3" aria-hidden="true">
+    <i [class]="icon()"></i>
+  </div>
+  <h2 class="empty-state-title">{{ title() }}</h2>
+  @if (description()) {
+    <p class="empty-state-desc mx-auto">{{ description() }}</p>
+  }
+  <div class="empty-state-action mt-2">
+    <ng-content></ng-content>
+  </div>
+</section>

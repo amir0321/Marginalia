@@ -1,0 +1,198 @@
+<div class="book-form-container">
+  <nav aria-label="Brödsmulor" class="mb-3">
+    <a routerLink="/books" class="back-link">
+      <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+      <span>Tillbaka till mina böcker</span>
+    </a>
+  </nav>
+
+  @if (isLoading()) {
+    <div class="card form-card text-center py-5" role="status" aria-label="Hämtar bokens uppgifter">
+      <span class="visually-hidden">Hämtar bokens uppgifter…</span>
+      <div class="spinner-border text-primary mx-auto mb-3" aria-hidden="true"></div>
+      <p class="text-muted mb-0">Hämtar bokens uppgifter…</p>
+    </div>
+  } @else if (isNotFound()) {
+    <app-empty-state
+      icon="fa-solid fa-circle-exclamation"
+      title="Boken hittades inte"
+      description="Boken du söker finns inte eller så har du inte behörighet att visa den."
+    >
+      <a routerLink="/books" class="btn btn-secondary">
+        Tillbaka till mina böcker
+      </a>
+    </app-empty-state>
+  } @else {
+    <article class="card form-card">
+      <header class="form-card-header">
+        <div class="form-icon" aria-hidden="true">
+          @if (isEditMode()) {
+            <i class="fa-solid fa-pen"></i>
+          } @else {
+            <i class="fa-solid fa-plus"></i>
+          }
+        </div>
+        <div>
+          <span class="overline">{{ isEditMode() ? 'UPPDATERA DIN SAMLING' : 'EN NY BERÄTTELSE' }}</span>
+          <h1 class="form-card-title">{{ isEditMode() ? 'Redigera bok' : 'Lägg till ny bok' }}</h1>
+          <p class="form-card-lead">
+            {{ isEditMode() ? 'Ändra uppgifterna och spara när du är klar.' : 'Fyll i uppgifterna för boken du vill spara.' }}
+          </p>
+        </div>
+      </header>
+
+      @if (serverErrorMessage()) {
+        <div class="alert alert-danger d-flex align-items-center gap-2 mt-4 mb-0" role="alert">
+          <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+          <span>{{ serverErrorMessage() }}</span>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="mt-4" novalidate>
+        <div class="mb-3">
+          <label for="bookTitle" class="form-label">
+            Titel <span aria-hidden="true">*</span>
+          </label>
+          <input
+            type="text"
+            id="bookTitle"
+            class="form-control"
+            [class.is-invalid]="titleControl.invalid && (titleControl.touched || titleControl.dirty)"
+            formControlName="title"
+            placeholder="Exempel: Ett eget rum"
+            maxlength="200"
+            aria-required="true"
+            [attr.aria-describedby]="titleControl.invalid && (titleControl.touched || titleControl.dirty) ? 'bookTitleError' : null"
+          />
+          @if (titleControl.invalid && (titleControl.touched || titleControl.dirty)) {
+            <div class="invalid-feedback d-flex align-items-center gap-1 mt-1" id="bookTitleError" role="alert">
+              <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+              <span>
+                @if (titleControl.hasError('required')) {
+                  Ange bokens titel
+                } @else if (titleControl.hasError('maxlength')) {
+                  Titeln får vara högst 200 tecken
+                } @else if (titleControl.hasError('server')) {
+                  {{ titleControl.getError('server') }}
+                }
+              </span>
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label for="bookAuthor" class="form-label">
+            Författare <span aria-hidden="true">*</span>
+          </label>
+          <input
+            type="text"
+            id="bookAuthor"
+            class="form-control"
+            [class.is-invalid]="authorControl.invalid && (authorControl.touched || authorControl.dirty)"
+            formControlName="author"
+            placeholder="Exempel: Virginia Woolf"
+            maxlength="200"
+            aria-required="true"
+            [attr.aria-describedby]="authorControl.invalid && (authorControl.touched || authorControl.dirty) ? 'bookAuthorError' : null"
+          />
+          @if (authorControl.invalid && (authorControl.touched || authorControl.dirty)) {
+            <div class="invalid-feedback d-flex align-items-center gap-1 mt-1" id="bookAuthorError" role="alert">
+              <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+              <span>
+                @if (authorControl.hasError('required')) {
+                  Ange bokens författare
+                } @else if (authorControl.hasError('maxlength')) {
+                  Författaren får vara högst 200 tecken
+                } @else if (authorControl.hasError('server')) {
+                  {{ authorControl.getError('server') }}
+                }
+              </span>
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label for="publishedDate" class="form-label">
+            Publiceringsdatum <span aria-hidden="true">*</span>
+          </label>
+          <input
+            #dateInput
+            type="date"
+            id="publishedDate"
+            class="form-control"
+            [max]="maxDate"
+            [class.is-invalid]="dateControl.invalid && (dateControl.touched || dateControl.dirty)"
+            formControlName="publishedDate"
+            aria-required="true"
+            [attr.aria-describedby]="dateControl.invalid && (dateControl.touched || dateControl.dirty) ? 'publishedDateError' : null"
+            (click)="onDateClick($event)"
+          />
+          @if (dateControl.invalid && (dateControl.touched || dateControl.dirty)) {
+            <div class="invalid-feedback d-flex align-items-center gap-1 mt-1" id="publishedDateError" role="alert">
+              <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+              <span>
+                @if (dateControl.hasError('required')) {
+                  Välj ett publiceringsdatum
+                } @else if (dateControl.hasError('futureDate')) {
+                  Publiceringsdatumet kan inte vara i framtiden
+                } @else if (dateControl.hasError('server')) {
+                  {{ dateControl.getError('server') }}
+                }
+              </span>
+            </div>
+          }
+        </div>
+
+        <div class="mb-4">
+          <label for="description" class="form-label mb-1">
+            Beskrivning <span class="form-optional">Valfritt</span>
+          </label>
+          <textarea
+            id="description"
+            rows="5"
+            class="form-control"
+            [class.is-invalid]="descControl.invalid && (descControl.touched || descControl.dirty)"
+            formControlName="description"
+            placeholder="Några ord om boken…"
+            maxlength="500"
+            [attr.aria-describedby]="descControl.invalid && (descControl.touched || descControl.dirty) ? 'descriptionError' : null"
+          ></textarea>
+          <div class="char-counter">
+            {{ descriptionCount() }}/500 tecken
+          </div>
+          @if (descControl.invalid && (descControl.touched || descControl.dirty)) {
+            <div class="invalid-feedback d-flex align-items-center gap-1 mt-1" id="descriptionError" role="alert">
+              <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+              <span>
+                @if (descControl.hasError('maxlength')) {
+                  Beskrivningen får vara högst 500 tecken
+                } @else if (descControl.hasError('server')) {
+                  {{ descControl.getError('server') }}
+                }
+              </span>
+            </div>
+          }
+        </div>
+
+        <footer class="form-actions">
+          <a routerLink="/books" class="btn btn-secondary">
+            Avbryt
+          </a>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="form.invalid || isSubmitting()"
+          >
+            @if (isSubmitting()) {
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <span>Sparar…</span>
+            } @else {
+              <i class="fa-solid fa-check" aria-hidden="true"></i>
+              <span>Spara</span>
+            }
+          </button>
+        </footer>
+      </form>
+    </article>
+  }
+</div>

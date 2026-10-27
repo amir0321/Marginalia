@@ -1,0 +1,120 @@
+<div class="auth-layout">
+  <aside class="auth-layout-hero" aria-label="Varumärkesillustration">
+    <app-auth-hero></app-auth-hero>
+  </aside>
+
+  <main class="auth-layout-main">
+    <header class="auth-topbar">
+      <app-logo></app-logo>
+
+      <button
+        type="button"
+        class="theme-toggle"
+        [class.is-dark]="theme.current() === 'dark'"
+        [attr.aria-pressed]="theme.current() === 'dark'"
+        aria-label="Byt färgtema"
+        (click)="theme.toggle()"
+      >
+        <span class="theme-toggle-knob" aria-hidden="true"></span>
+        <i class="fa-solid fa-sun theme-toggle-icon" [class.is-active]="theme.current() === 'light'" aria-hidden="true"></i>
+        <i class="fa-solid fa-moon theme-toggle-icon" [class.is-active]="theme.current() === 'dark'" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <section class="auth-card" aria-labelledby="loginHeading">
+      <span class="overline">VÄLKOMMEN TILLBAKA</span>
+      <h1 id="loginHeading">Logga in</h1>
+      <p class="page-lead">Dina böcker och anteckningar väntar på dig.</p>
+
+      @if (errorMessage()) {
+        <div class="auth-alert alert-danger" role="alert">
+          <i class="fa-solid fa-circle-exclamation auth-alert-icon" aria-hidden="true"></i>
+          <div class="auth-alert-content">
+            <div class="auth-alert-title">Något gick fel</div>
+            <p class="auth-alert-text">{{ errorMessage() }}</p>
+          </div>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <div class="mb-3">
+          <label for="username" class="form-label">
+            Användarnamn <span aria-hidden="true">*</span>
+          </label>
+          <div class="input-icon-group">
+            <i class="fa-solid fa-user input-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              id="username"
+              class="form-control"
+              [class.is-invalid]="usernameInvalid()"
+              formControlName="username"
+              placeholder="Ditt användarnamn"
+              autocomplete="username"
+              maxlength="30"
+              required
+              [attr.aria-invalid]="usernameInvalid()"
+              [attr.aria-describedby]="usernameInvalid() ? 'username-error' : null"
+            />
+          </div>
+          @if (usernameInvalid()) {
+            <div id="username-error" class="field-error" role="alert">
+              <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+              <span>{{ usernameError() }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="mb-4">
+          <label for="password" class="form-label">
+            Lösenord <span aria-hidden="true">*</span>
+          </label>
+          <div class="input-icon-group">
+            <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
+            <input
+              [type]="showPassword() ? 'text' : 'password'"
+              id="password"
+              class="form-control"
+              [class.is-invalid]="passwordInvalid()"
+              formControlName="password"
+              placeholder="Minst 8 tecken"
+              autocomplete="current-password"
+              maxlength="128"
+              required
+              [attr.aria-invalid]="passwordInvalid()"
+              [attr.aria-describedby]="passwordInvalid() ? 'password-error' : null"
+            />
+            <button
+              type="button"
+              class="password-toggle-btn"
+              (click)="showPassword.set(!showPassword())"
+              [attr.aria-label]="showPassword() ? 'Dölj lösenord' : 'Visa lösenord'"
+            >
+              <i class="fa-solid" [class.fa-eye]="!showPassword()" [class.fa-eye-slash]="showPassword()" aria-hidden="true"></i>
+            </button>
+          </div>
+          @if (passwordInvalid()) {
+            <div id="password-error" class="field-error" role="alert">
+              <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+              <span>{{ passwordError() }}</span>
+            </div>
+          }
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary btn-block"
+          [disabled]="isSubmitting()"
+        >
+          <span>Logga in</span>
+          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </button>
+      </form>
+
+      <nav aria-label="Kontoalternativ" class="auth-switch">
+        <span>Har du inget konto? </span>
+        <a routerLink="/register">Registrera dig</a>
+      </nav>
+    </section>
+  </main>
+</div>

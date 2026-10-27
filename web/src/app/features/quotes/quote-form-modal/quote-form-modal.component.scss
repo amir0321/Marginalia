@@ -1,0 +1,75 @@
+.quote-modal-wrapper {
+  padding: 26px;
+}
+
+.quote-modal-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.form-control {
+  border-radius: 10px;
+  border-color: var(--border);
+  background-color: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+
+  &::placeholder {
+    color: var(--muted);
+  }
+
+  &:focus {
+    background-color: var(--surface);
+    color: var(--text);
+    border-color: var(--info);
+    box-shadow: 0 0 0 3px rgba(46, 144, 250, 0.12);
+  }
+
+  &.is-invalid {
+    border-color: var(--danger);
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(240, 68, 56, 0.12);
+    }
+  }
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 120px;
+}
+
+input.form-control {
+  height: 46px;
+}
+
+.char-counter {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.invalid-feedback {
+  font-size: 12px;
+  color: var(--danger);
+}
+
+.form-actions {
+  border-top: 1px solid var(--border);
+
+  @media (max-width: 767.98px) {
+    .btn {
+      flex: 1;
+    }
+  }
+}

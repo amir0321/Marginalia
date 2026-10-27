@@ -1,0 +1,43 @@
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  text-decoration: none;
+  transition: color 180ms ease;
+
+  &:hover {
+    color: var(--ink-hover);
+  }
+
+  &.on-dark,
+  &.on-dark:hover {
+    color: var(--white);
+  }
+}
+
+.logo-icon {
+  flex-shrink: 0;
+  width: 31px;
+  height: 31px;
+}
+
+.brand-text {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 600;
+  font-size: 23px;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: inherit;
+}
+
+.is-compact {
+  .logo-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .brand-text {
+    font-size: 17px;
+  }
+}

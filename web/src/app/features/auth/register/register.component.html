@@ -1,0 +1,168 @@
+<div class="auth-layout">
+  <aside class="auth-layout-hero" aria-label="Varumärkesillustration">
+    <app-auth-hero></app-auth-hero>
+  </aside>
+
+  <main class="auth-layout-main">
+    <header class="auth-topbar">
+      <app-logo></app-logo>
+
+      <button
+        type="button"
+        class="theme-toggle"
+        [class.is-dark]="theme.current() === 'dark'"
+        [attr.aria-pressed]="theme.current() === 'dark'"
+        aria-label="Byt färgtema"
+        (click)="theme.toggle()"
+      >
+        <span class="theme-toggle-knob" aria-hidden="true"></span>
+        <i class="fa-solid fa-sun theme-toggle-icon" [class.is-active]="theme.current() === 'light'" aria-hidden="true"></i>
+        <i class="fa-solid fa-moon theme-toggle-icon" [class.is-active]="theme.current() === 'dark'" aria-hidden="true"></i>
+      </button>
+    </header>
+
+    <section class="auth-card" aria-labelledby="registerHeading">
+      <span class="overline">BÖRJA DIN SAMLING</span>
+      <h1 id="registerHeading">Skapa konto</h1>
+      <p class="page-lead">Samla böckerna och orden du vill bära med dig.</p>
+
+      @if (errorMessage()) {
+        <div class="auth-alert alert-danger" role="alert">
+          <i class="fa-solid fa-circle-exclamation auth-alert-icon" aria-hidden="true"></i>
+          <div class="auth-alert-content">
+            <div class="auth-alert-title">Något gick fel</div>
+            <p class="auth-alert-text">{{ errorMessage() }}</p>
+          </div>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+        <div class="mb-3">
+          <label for="username" class="form-label">
+            Användarnamn <span aria-hidden="true">*</span>
+          </label>
+          <div class="input-icon-group">
+            <i class="fa-solid fa-user input-icon" aria-hidden="true"></i>
+            <input
+              type="text"
+              id="username"
+              class="form-control"
+              [class.is-invalid]="usernameInvalid()"
+              formControlName="username"
+              placeholder="Ditt användarnamn"
+              autocomplete="username"
+              maxlength="30"
+              required
+              [attr.aria-invalid]="usernameInvalid()"
+              [attr.aria-describedby]="usernameInvalid() ? 'username-error' : null"
+            />
+          </div>
+          @if (usernameInvalid()) {
+            <div id="username-error" class="field-error" role="alert">
+              <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+              <span>{{ usernameError() }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label">
+            Lösenord <span aria-hidden="true">*</span>
+          </label>
+          <div class="input-icon-group">
+            <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
+            <input
+              [type]="showPassword() ? 'text' : 'password'"
+              id="password"
+              class="form-control"
+              [class.is-invalid]="passwordInvalid()"
+              formControlName="password"
+              placeholder="Minst 8 tecken"
+              autocomplete="new-password"
+              maxlength="128"
+              required
+              [attr.aria-invalid]="passwordInvalid()"
+              [attr.aria-describedby]="passwordInvalid() ? 'password-error' : null"
+            />
+            <button
+              type="button"
+              class="password-toggle-btn"
+              (click)="showPassword.set(!showPassword())"
+              [attr.aria-label]="showPassword() ? 'Dölj lösenord' : 'Visa lösenord'"
+            >
+              <i class="fa-solid" [class.fa-eye]="!showPassword()" [class.fa-eye-slash]="showPassword()" aria-hidden="true"></i>
+            </button>
+          </div>
+          @if (passwordInvalid()) {
+            <div id="password-error" class="field-error" role="alert">
+              <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+              <span>{{ passwordError() }}</span>
+            </div>
+          }
+
+          <div class="password-strength">
+            <div class="strength-bars">
+              <div class="strength-bar" [class.active]="strengthLevel() >= 1"></div>
+              <div class="strength-bar" [class.active]="strengthLevel() >= 2"></div>
+              <div class="strength-bar" [class.active]="strengthLevel() >= 3"></div>
+              <div class="strength-bar" [class.active]="strengthLevel() >= 4"></div>
+            </div>
+            <p class="strength-label">
+              Lösenordsstyrka: <span class="fw-medium">{{ strengthText() }}</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="confirmPassword" class="form-label">
+            Bekräfta lösenord <span aria-hidden="true">*</span>
+          </label>
+          <div class="input-icon-group">
+            <i class="fa-solid fa-lock input-icon" aria-hidden="true"></i>
+            <input
+              [type]="showConfirmPassword() ? 'text' : 'password'"
+              id="confirmPassword"
+              class="form-control"
+              [class.is-invalid]="confirmPasswordInvalid()"
+              formControlName="confirmPassword"
+              placeholder="Upprepa lösenordet"
+              autocomplete="new-password"
+              maxlength="128"
+              required
+              [attr.aria-invalid]="confirmPasswordInvalid()"
+              [attr.aria-describedby]="confirmPasswordInvalid() ? 'confirmPassword-error' : null"
+            />
+            <button
+              type="button"
+              class="password-toggle-btn"
+              (click)="showConfirmPassword.set(!showConfirmPassword())"
+              [attr.aria-label]="showConfirmPassword() ? 'Dölj bekräftat lösenord' : 'Visa bekräftat lösenord'"
+            >
+              <i class="fa-solid" [class.fa-eye]="!showConfirmPassword()" [class.fa-eye-slash]="showConfirmPassword()" aria-hidden="true"></i>
+            </button>
+          </div>
+          @if (confirmPasswordInvalid()) {
+            <div id="confirmPassword-error" class="field-error" role="alert">
+              <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+              <span>{{ confirmPasswordError() }}</span>
+            </div>
+          }
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary btn-block"
+          [disabled]="isSubmitting()"
+        >
+          <span>Registrera dig</span>
+          <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+        </button>
+      </form>
+
+      <nav aria-label="Kontoalternativ" class="auth-switch">
+        <span>Har du redan ett konto? </span>
+        <a routerLink="/login">Logga in</a>
+      </nav>
+    </section>
+  </main>
+</div>

@@ -1,0 +1,431 @@
+{
+	"info": {
+		"_postman_id": "b3e21820-80a5-4f4e-a18a-98616492972e",
+		"name": "Marginalia API",
+		"description": "Komplett Postman Collection för Marginalia (.NET 9 Web API). Innehåller alla endpoints för hälsa, autentisering, böcker och citat med färdiga exempel och automatisk token-hantering.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "Hälsokontroll (Health check)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"health"
+							]
+						},
+						"description": "Anonym hälsokontroll som väcker API:t eller verifierar att tjänsten körs."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Autentisering (Auth)",
+			"item": [
+				{
+					"name": "Registrera användare (Register)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"bokalvan\",\n  \"password\": \"Losenord123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Skapar ett nytt användarkonto. Användarnamn 3-30 tecken, lösenord minst 8 tecken."
+					},
+					"response": []
+				},
+				{
+					"name": "Logga in (Login)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const data = pm.response.json();",
+									"    if (data.token) {",
+									"        pm.collectionVariables.set(\"token\", data.token);",
+									"        console.log(\"Token sparades automatiskt i variabeln 'token'!\");",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"bokalvan\",\n  \"password\": \"Losenord123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Loggar in och sparar automatiskt JWT Bearer-token i Postman-variabeln {{token}}."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Böcker (Books)",
+			"item": [
+				{
+					"name": "Hämta mina böcker",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/books",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"books"
+							]
+						},
+						"description": "Returnerar endast den inloggade användarens böcker (hämtade via JWT-token). Ingen användare kan se andras böcker."
+					},
+					"response": []
+				},
+				{
+					"name": "Hämta en specifik bok",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/books/{{bookId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"{{bookId}}"
+							]
+						},
+						"description": "Hämtar en enskild bok som tillhör den inloggade användaren (används t.ex. vid redigering). Ger 404 om boken saknas eller tillhör en annan användare."
+					},
+					"response": []
+				},
+				{
+					"name": "Lägg till ny bok",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const data = pm.response.json();",
+									"    if (data.id) {",
+									"        pm.collectionVariables.set(\"bookId\", data.id);",
+									"        console.log(\"bookId sparades till variabeln: \" + data.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Kallocain\",\n  \"author\": \"Karin Boye\",\n  \"publishedDate\": \"1940-01-01\",\n  \"description\": \"En klassisk svensk dystopi om kontrollstaten och individens frihet.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/books",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"books"
+							]
+						},
+						"description": "Lägger till en ny bok i den inloggade användarens personliga samling."
+					},
+					"response": []
+				},
+				{
+					"name": "Redigera bok",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Kallocain\",\n  \"author\": \"Karin Boye\",\n  \"publishedDate\": \"1940-01-01\",\n  \"description\": \"Uppdaterad beskrivning för Karin Boyes mästerverk.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/books/{{bookId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"{{bookId}}"
+							]
+						},
+						"description": "Uppdaterar titel, författare, datum eller beskrivning för en befintlig bok som tillhör den inloggade användaren."
+					},
+					"response": []
+				},
+				{
+					"name": "Radera bok",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/books/{{bookId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"{{bookId}}"
+							]
+						},
+						"description": "Tar bort boken från användarens samling (204 No Content). Ger 404 om boken tillhör någon annan."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Mina citat (Quotes)",
+			"item": [
+				{
+					"name": "Hämta mina citat",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/quotes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"quotes"
+							]
+						},
+						"description": "Returnerar endast den inloggade användarens sparade favoritcitat (äldst först, max 5 stycken)."
+					},
+					"response": []
+				},
+				{
+					"name": "Lägg till citat",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const data = pm.response.json();",
+									"    if (data.id) {",
+									"        pm.collectionVariables.set(\"quoteId\", data.id);",
+									"        console.log(\"quoteId sparades till variabeln: \" + data.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"Ja visst gör det ont när knoppar brister. Varför skulle annars våren tveka?\",\n  \"author\": \"Karin Boye\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/quotes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"quotes"
+							]
+						},
+						"description": "Sparar ett nytt favoritcitat för den inloggade användaren. Ger 409 Conflict om användaren redan har 5 sparade citat."
+					},
+					"response": []
+				},
+				{
+					"name": "Redigera citat",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"text\": \"Ja visst gör det ont när knoppar brister.\",\n  \"author\": \"Karin Boye\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/quotes/{{quoteId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"quotes",
+								"{{quoteId}}"
+							]
+						},
+						"description": "Uppdaterar citatets text och författare för den inloggade användaren."
+					},
+					"response": []
+				},
+				{
+					"name": "Radera citat",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/quotes/{{quoteId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"quotes",
+								"{{quoteId}}"
+							]
+						},
+						"description": "Tar bort citatet från användarens samling (204 No Content). Ger 404 om citatet tillhör någon annan."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5080",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "bookId",
+			"value": "00000000-0000-0000-0000-000000000000",
+			"type": "string"
+		},
+		{
+			"key": "quoteId",
+			"value": "00000000-0000-0000-0000-000000000000",
+			"type": "string"
+		}
+	]
+}

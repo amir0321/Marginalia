@@ -1,0 +1,14 @@
+$kind: http-request
+description: Uppdaterar citatets text och författare för den inloggade användaren.
+url: "{{baseUrl}}/api/quotes/{{quoteId}}"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "text": "Ja visst gör det ont när knoppar brister.",
+      "author": "Karin Boye"
+    }
+order: 3000

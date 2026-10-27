@@ -1,0 +1,138 @@
+<div class="d-flex flex-column min-vh-100">
+  @if (isAuthPage()) {
+    <router-outlet></router-outlet>
+  } @else {
+    <header class="app-header sticky-top" [class.is-open]="!isCollapsed()">
+      <nav class="navbar navbar-expand-lg app-navbar" aria-label="Huvudmeny">
+        <div class="shell-container app-navbar-inner">
+          <div class="app-navbar-top">
+            <app-logo></app-logo>
+
+            <button
+              type="button"
+              class="app-navbar-toggler d-lg-none"
+              (click)="isCollapsed.set(!isCollapsed())"
+              [attr.aria-expanded]="!isCollapsed()"
+              aria-controls="mainNav"
+              aria-label="Växla navigationsmeny"
+            >
+              <i
+                class="fa-solid"
+                [class.fa-bars]="isCollapsed()"
+                [class.fa-xmark]="!isCollapsed()"
+                aria-hidden="true"
+              ></i>
+            </button>
+          </div>
+
+          <div id="mainNav" [ngbCollapse]="isCollapsed()" class="collapse navbar-collapse app-navbar-collapse">
+            <div class="app-navbar-collapse-inner">
+              <ul class="navbar-nav app-nav">
+                <li class="nav-item">
+                  <a
+                    class="nav-link"
+                    routerLink="/books"
+                    routerLinkActive="active"
+                    ariaCurrentWhenActive="page"
+                    (click)="isCollapsed.set(true)"
+                  >
+                    <i class="fa-solid fa-book" aria-hidden="true"></i>
+                    <span>Böcker</span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a
+                    class="nav-link"
+                    routerLink="/quotes"
+                    routerLinkActive="active"
+                    ariaCurrentWhenActive="page"
+                    (click)="isCollapsed.set(true)"
+                  >
+                    <i class="fa-solid fa-quote-left" aria-hidden="true"></i>
+                    <span>Mina citat</span>
+                  </a>
+                </li>
+              </ul>
+
+              <div class="app-navbar-actions">
+                <button
+                  type="button"
+                  class="theme-toggle"
+                  [class.is-dark]="theme.current() === 'dark'"
+                  [attr.aria-pressed]="theme.current() === 'dark'"
+                  aria-label="Byt färgtema"
+                  (click)="theme.toggle()"
+                >
+                  <span class="theme-toggle-knob" aria-hidden="true"></span>
+                  <i class="fa-solid fa-sun theme-toggle-icon" [class.is-active]="theme.current() === 'light'" aria-hidden="true"></i>
+                  <i class="fa-solid fa-moon theme-toggle-icon" [class.is-active]="theme.current() === 'dark'" aria-hidden="true"></i>
+                </button>
+
+                @if (auth.isLoggedIn()) {
+                  <div ngbDropdown placement="bottom-end" class="d-inline-block user-dropdown position-relative">
+                    <button
+                      type="button"
+                      class="user-menu-btn"
+                      id="userDropdown"
+                      ngbDropdownToggle
+                      aria-label="Användarmeny"
+                    >
+                      <span class="user-avatar" aria-hidden="true">{{ userInitials() }}</span>
+                      <span class="user-name">{{ auth.username() }}</span>
+                      <i class="fa-solid fa-chevron-down user-chevron" aria-hidden="true"></i>
+                    </button>
+                    <div ngbDropdownMenu aria-labelledby="userDropdown" class="user-menu dropdown-menu-end">
+                      <div class="user-menu-header">
+                        <span class="user-menu-username">{{ auth.username() }}</span>
+                      </div>
+                      <div class="user-menu-body">
+                        <button
+                          type="button"
+                          ngbDropdownItem
+                          class="user-menu-item is-danger"
+                          (click)="logout()"
+                        >
+                          <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+                          <span>Logga ut</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="d-flex align-items-center gap-2">
+                    <a
+                      routerLink="/login"
+                      class="btn btn-secondary"
+                      (click)="isCollapsed.set(true)"
+                    >Logga in</a>
+                    <a
+                      routerLink="/register"
+                      class="btn btn-primary"
+                      (click)="isCollapsed.set(true)"
+                    >Registrera dig</a>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="app-main flex-grow-1">
+      <router-outlet></router-outlet>
+    </main>
+
+    <footer class="app-footer">
+      <div class="shell-container app-footer-inner">
+        <div class="app-footer-brand">
+          <app-logo class="app-footer-logo" [compact]="true"></app-logo>
+          <p class="app-footer-slogan">En stillsam plats för böckerna som stannar kvar.</p>
+        </div>
+        <small class="app-footer-copy">© 2026 Marginalia</small>
+      </div>
+    </footer>
+  }
+
+  <app-toast-container></app-toast-container>
+</div>

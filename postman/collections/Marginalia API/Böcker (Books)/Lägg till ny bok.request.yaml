@@ -1,0 +1,27 @@
+$kind: http-request
+description: Lägger till en ny bok i den inloggade användarens personliga samling.
+url: "{{baseUrl}}/api/books"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "title": "Kallocain",
+      "author": "Karin Boye",
+      "publishedDate": "1940-01-01",
+      "description": "En klassisk svensk dystopi om kontrollstaten och individens frihet."
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      if (pm.response.code === 201) {
+          const data = pm.response.json();
+          if (data.id) {
+              pm.collectionVariables.set("bookId", data.id);
+              console.log("bookId sparades till variabeln: " + data.id);
+          }
+      }
+    language: text/javascript
+order: 3000

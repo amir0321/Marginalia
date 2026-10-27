@@ -1,0 +1,54 @@
+<div
+  class="toast-container position-fixed bottom-0 end-0 p-3"
+  style="z-index: 1200;"
+  aria-live="polite"
+  aria-atomic="true"
+>
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div
+      class="toast-card show mb-2"
+      role="status"
+      aria-live="assertive"
+    >
+      <div class="toast-status-circle" [class]="toast.type" aria-hidden="true">
+        @if (toast.type === 'success') {
+          <i class="fa-solid fa-check"></i>
+        } @else if (toast.type === 'danger') {
+          <i class="fa-solid fa-circle-exclamation"></i>
+        } @else if (toast.type === 'warning') {
+          <i class="fa-solid fa-circle-exclamation"></i>
+        } @else {
+          <i class="fa-solid fa-circle-exclamation"></i>
+        }
+      </div>
+
+      <div class="toast-content flex-grow-1">
+        @if (toast.type === 'success') {
+          <strong class="toast-title d-block">Klart</strong>
+        } @else if (toast.type === 'danger') {
+          <strong class="toast-title d-block">Fel</strong>
+        }
+        <p class="toast-message mb-0">{{ toast.message }}</p>
+
+        @if (toast.action) {
+          <button
+            type="button"
+            class="toast-action-btn mt-2"
+            (click)="$event.stopPropagation(); toast.action.onClick(); toastService.dismiss(toast.id)"
+          >
+            {{ toast.action.label }}
+          </button>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="toast-close-btn"
+        aria-label="Stäng notis"
+        (click)="$event.stopPropagation(); toastService.dismiss(toast.id)"
+      >
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+  }
+</div>

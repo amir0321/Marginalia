@@ -1,0 +1,119 @@
+.auth-hero {
+  background-color: var(--ink-solid);
+  min-height: 100vh;
+  padding: 40px 48px;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hero-watermark {
+  bottom: -150px;
+  left: -150px;
+  width: 700px;
+  height: 700px;
+  pointer-events: none;
+}
+
+/* 3D Paper book graphic: 350×265 px, -2deg tilt, pages in --paper-page */
+.book-mockup {
+  display: flex;
+  width: 350px;
+  height: 265px;
+  background-color: var(--paper-page);
+  border-radius: 6px 12px 12px 6px;
+  position: relative;
+  box-shadow: var(--paper-shadow);
+  transform: perspective(1000px) rotate(-2deg);
+  transition: transform 300ms ease;
+
+  &:hover {
+    transform: perspective(1000px) rotate(0deg) translateY(-4px);
+  }
+}
+
+.book-page {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  padding: 24px 20px;
+  background-color: var(--paper-page);
+}
+
+.left-page {
+  border-radius: 6px 0 0 6px;
+  border-left: 16px solid var(--paper-edge);
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
+  background: linear-gradient(to right, var(--paper-gradient), var(--paper-page) 20%, var(--paper-page));
+}
+
+.right-page {
+  border-radius: 0 12px 12px 0;
+  background: linear-gradient(to left, var(--paper-gradient), var(--paper-page) 20%, var(--paper-page));
+}
+
+.book-spine-divider {
+  width: 4px;
+  background: linear-gradient(to bottom, var(--paper-spine-1), var(--paper-spine-2), var(--paper-spine-1));
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.15);
+}
+
+.amber-quote-mark {
+  font-size: 44px;
+  font-family: 'Fraunces', Georgia, serif;
+  color: var(--amber);
+  line-height: 1;
+  display: block;
+}
+
+.page-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.page-line {
+  height: 3px;
+  background-color: rgba(31, 58, 95, 0.12);
+  border-radius: 2px;
+}
+
+.w-65 {
+  width: 65%;
+}
+
+.w-70 {
+  width: 70%;
+}
+
+.w-85 {
+  width: 85%;
+}
+
+.marginalia-note {
+  border-left: 2px solid var(--amber);
+  padding-left: 10px;
+  margin-top: 16px;
+}
+
+.book-quote-phrase {
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--paper-ink);
+  line-height: 1.4;
+}
+
+.hero-quote {
+  font-size: 20px;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--white);
+}
+
+.font-fraunces {
+  font-family: 'Fraunces', Georgia, serif;
+}
+
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}

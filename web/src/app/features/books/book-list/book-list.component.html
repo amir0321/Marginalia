@@ -1,0 +1,284 @@
+<div class="d-flex flex-column gap-4">
+  <header class="page-header">
+    <div>
+      <span class="overline">DITT BIBLIOTEK</span>
+      <h1>Mina böcker</h1>
+      <p class="page-lead">
+        @if (isLoading()) {
+          Hämtar dina böcker…
+        } @else {
+          {{ books().length === 1 ? '1 bok sparad' : books().length + ' böcker sparade' }} i din samling.
+        }
+      </p>
+    </div>
+    <div>
+      <a routerLink="/books/new" class="btn btn-primary page-header-action" aria-label="Lägg till ny bok">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        <span class="d-none d-md-inline">Lägg till ny bok</span>
+      </a>
+    </div>
+  </header>
+
+  @if (isLoading()) {
+    <section class="books-skeleton" role="status" aria-label="Hämtar dina böcker">
+      <span class="visually-hidden">Hämtar dina böcker…</span>
+
+      <div class="card d-none d-md-block overflow-hidden">
+        <div class="table-responsive">
+          <table class="table mb-0 book-table skeleton-table">
+            <thead>
+              <tr>
+                <th scope="col" class="ps-4" style="width: 40%;">TITEL</th>
+                <th scope="col" style="width: 25%;">FÖRFATTARE</th>
+                <th scope="col" style="width: 20%;">PUBLICERINGSDATUM</th>
+                <th scope="col" class="pe-4 text-end" style="width: 15%;">ÅTGÄRDER</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (i of [1, 2, 3]; track i) {
+                <tr class="book-row">
+                  <td class="ps-4">
+                    <div class="d-flex align-items-center gap-3">
+                      <div class="skeleton-block skeleton-glyph"></div>
+                      <div class="skeleton-block skeleton-text" style="width: 180px;"></div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="skeleton-block skeleton-text" style="width: 120px;"></div>
+                  </td>
+                  <td>
+                    <div class="skeleton-block skeleton-text" style="width: 100px;"></div>
+                  </td>
+                  <td class="pe-4 text-end">
+                    <div class="d-inline-flex gap-2">
+                      <div class="skeleton-block skeleton-btn"></div>
+                      <div class="skeleton-block skeleton-btn"></div>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="d-flex d-md-none flex-column gap-3">
+        @for (i of [1, 2]; track i) {
+          <div class="card mobile-book-card">
+            <div class="d-flex align-items-start gap-3">
+              <div class="skeleton-block skeleton-glyph"></div>
+              <div class="flex-grow-1">
+                <div class="skeleton-block skeleton-text mb-2" style="width: 70%;"></div>
+                <div class="skeleton-block skeleton-text" style="width: 45%;"></div>
+              </div>
+            </div>
+            <div class="mobile-book-footer d-flex justify-content-between align-items-center mt-3">
+              <div class="skeleton-block skeleton-text" style="width: 80px; margin-left: 48px;"></div>
+              <div class="d-inline-flex gap-2">
+                <div class="skeleton-block skeleton-btn"></div>
+                <div class="skeleton-block skeleton-btn"></div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  } @else if (errorMessage()) {
+    <app-empty-state
+      icon="fa-solid fa-circle-exclamation"
+      title="Kunde inte hämta böcker"
+      [description]="errorMessage()!"
+    >
+      <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2" (click)="loadBooks()">
+        <span>Försök igen</span>
+      </button>
+    </app-empty-state>
+  } @else if (books().length === 0) {
+    <app-empty-state
+      icon="fa-solid fa-book-open"
+      title="Du har inga böcker ännu"
+      description="Lägg till din första bok och börja bygga ditt personliga bibliotek."
+    >
+      <a routerLink="/books/new" class="btn btn-primary d-inline-flex align-items-center gap-2">
+        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+        <span>Lägg till en bok</span>
+      </a>
+    </app-empty-state>
+  } @else {
+    <section class="books-toolbar d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3" aria-label="Sök och sortering">
+      <div class="flex-grow-1 search-container">
+        <label for="book-search" class="visually-hidden">Sök efter titel eller författare</label>
+        <div class="input-icon-group">
+          <i class="fa-solid fa-magnifying-glass input-icon" aria-hidden="true"></i>
+          <input
+            id="book-search"
+            type="search"
+            class="form-control"
+            placeholder="Sök efter titel eller författare…"
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            aria-label="Sök efter titel eller författare"
+          />
+        </div>
+      </div>
+
+      <div class="sort-container">
+        <app-custom-select
+          label="Sortera"
+          [options]="sortOptions"
+          [(value)]="sortBy"
+          ariaLabel="Sortera böcker"
+        ></app-custom-select>
+      </div>
+    </section>
+
+    @if (filteredBooks().length > 0) {
+      <section class="card d-none d-md-block overflow-hidden" aria-label="Boklista i tabell">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0 book-table">
+            <thead>
+              <tr>
+                <th scope="col" class="ps-4" style="width: 40%;">TITEL</th>
+                <th scope="col" style="width: 25%;">FÖRFATTARE</th>
+                <th scope="col" style="width: 20%;">PUBLICERINGSDATUM</th>
+                <th scope="col" class="pe-4 text-end" style="width: 15%;">ÅTGÄRDER</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (book of filteredBooks(); track book.id) {
+                <tr class="book-row clickable-row" (click)="onRowClick($event, book)">
+                  <td class="ps-4">
+                    <div class="d-flex align-items-center gap-3">
+                      <button
+                        type="button"
+                        class="btn-unstyled book-glyph-btn"
+                        (click)="openDetail(book)"
+                        [attr.aria-label]="'Visa detaljer för ' + book.title"
+                      >
+                        <div class="book-glyph" aria-hidden="true">
+                          <i class="fa-solid fa-book-open"></i>
+                        </div>
+                      </button>
+                      <div class="d-flex flex-column min-w-0">
+                        <button
+                          type="button"
+                          class="btn-unstyled book-title-btn text-start p-0"
+                          (click)="openDetail(book)"
+                          [attr.aria-label]="'Visa detaljer för ' + book.title"
+                        >
+                          <span class="fw-semibold text-body book-title-text">{{ book.title }}</span>
+                        </button>
+                        @if (book.description) {
+                          <small
+                            class="book-desc-text text-muted text-truncate"
+                            [title]="book.description"
+                          >
+                            {{ book.description }}
+                          </small>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-body">{{ book.author }}</td>
+                  <td class="text-muted">
+                    <time [attr.datetime]="book.publishedDate">{{ book.publishedDate | date:'d MMM yyyy' }}</time>
+                  </td>
+                  <td class="pe-4 text-end">
+                    <div class="d-inline-flex align-items-center gap-1 action-buttons">
+                      <a
+                        [routerLink]="['/books', book.id, 'edit']"
+                        class="btn btn-ghost"
+                        aria-label="Redigera bok"
+                      >
+                        <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                        <span class="d-none d-lg-inline">Redigera</span>
+                      </a>
+                      <button
+                        type="button"
+                        class="btn btn-ghost is-danger"
+                        (click)="onDelete(book)"
+                        aria-label="Radera bok"
+                      >
+                        <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                        <span class="d-none d-lg-inline">Radera</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="d-flex d-md-none flex-column gap-3" aria-label="Boklista i kort">
+        @for (book of filteredBooks(); track book.id) {
+          <article class="card mobile-book-card">
+            <div class="d-flex align-items-start gap-3 mobile-card-header">
+              <button
+                type="button"
+                class="btn-unstyled book-glyph-btn"
+                (click)="openDetail(book)"
+                [attr.aria-label]="'Visa detaljer för ' + book.title"
+              >
+                <div class="book-glyph" aria-hidden="true">
+                  <i class="fa-solid fa-book-open"></i>
+                </div>
+              </button>
+              <div class="flex-grow-1 min-w-0">
+                <button
+                  type="button"
+                  class="btn-unstyled mobile-book-title-btn text-start p-0 w-100"
+                  (click)="openDetail(book)"
+                  [attr.aria-label]="'Visa detaljer för ' + book.title"
+                >
+                  <h2 class="mobile-book-title mb-1">{{ book.title }}</h2>
+                </button>
+                <p class="mobile-book-author mb-0 text-muted">{{ book.author }}</p>
+                @if (book.description) {
+                  <p class="mobile-book-desc text-muted mb-0 mt-1" [title]="book.description">
+                    {{ book.description }}
+                  </p>
+                }
+              </div>
+            </div>
+            <footer class="mobile-book-footer d-flex justify-content-between align-items-center">
+              <time class="mobile-book-date text-muted" [attr.datetime]="book.publishedDate">
+                {{ book.publishedDate | date:'d MMM yyyy' }}
+              </time>
+              <div class="d-inline-flex align-items-center gap-1">
+                <a
+                  [routerLink]="['/books', book.id, 'edit']"
+                  class="btn btn-ghost btn-sm"
+                  aria-label="Redigera bok"
+                >
+                  <i class="fa-solid fa-pen" aria-hidden="true"></i>
+                  <span>Redigera</span>
+                </a>
+                <button
+                  type="button"
+                  class="btn btn-ghost is-danger btn-sm"
+                  (click)="onDelete(book)"
+                  aria-label="Radera bok"
+                >
+                  <i class="fa-solid fa-trash" aria-hidden="true"></i>
+                  <span>Radera</span>
+                </button>
+              </div>
+            </footer>
+          </article>
+        }
+      </section>
+    } @else {
+      <app-empty-state
+        icon="fa-solid fa-magnifying-glass"
+        title="Inga böcker matchade din sökning"
+        description="Prova en annan sökning eller rensa sökfältet."
+      >
+        <button type="button" class="btn btn-secondary" (click)="searchQuery.set('')">
+          Rensa sökning
+        </button>
+      </app-empty-state>
+    }
+  }
+</div>
