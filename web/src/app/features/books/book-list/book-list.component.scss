@@ -76,6 +76,36 @@
   }
 }
 
+.book-title-btn,
+.mobile-book-title-btn {
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover .book-title-text,
+  &:hover .mobile-book-title,
+  &:focus-visible .book-title-text,
+  &:focus-visible .mobile-book-title {
+    color: var(--ink);
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+.book-glyph-btn {
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}
+
 /* Table: 44px --surface-2 header, 76px rows */
 .book-table {
   thead {

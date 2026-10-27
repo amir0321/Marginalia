@@ -32,6 +32,9 @@
         id="quote-text"
         rows="5"
         class="form-control"
+        required
+        aria-required="true"
+        [attr.aria-invalid]="textControl.invalid && (textControl.touched || submitted()) ? 'true' : null"
         [class.is-invalid]="textControl.invalid && (textControl.touched || submitted())"
         formControlName="text"
         placeholder="Skriv eller klistra in citatet…"
@@ -67,6 +70,9 @@
         id="quote-author"
         type="text"
         class="form-control"
+        required
+        aria-required="true"
+        [attr.aria-invalid]="authorControl.invalid && (authorControl.touched || submitted()) ? 'true' : null"
         [class.is-invalid]="authorControl.invalid && (authorControl.touched || submitted())"
         formControlName="author"
         placeholder="Vem skrev orden?"

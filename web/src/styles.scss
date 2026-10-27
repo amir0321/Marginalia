@@ -39,6 +39,9 @@
   --bs-danger-text-emphasis: #B42318;
   --bs-danger-bg-subtle: #FEF3F2;
   --bs-danger-border-subtle: #FECDCA;
+  --bs-warning-text-emphasis: #B54708;
+  --bs-warning-bg-subtle: #FFFAEB;
+  --bs-warning-border-subtle: #FEDF89;
 
   --white: #FFFFFF;
   --paper-page: #F7F4EC;
@@ -79,6 +82,9 @@
   --bs-danger-text-emphasis: #FDA29B;
   --bs-danger-bg-subtle: rgba(240, 68, 56, .10);
   --bs-danger-border-subtle: rgba(240, 68, 56, .25);
+  --bs-warning-text-emphasis: #FEC84B;
+  --bs-warning-bg-subtle: rgba(247, 144, 9, .12);
+  --bs-warning-border-subtle: rgba(247, 144, 9, .28);
 
   --white: #FFFFFF;
   --paper-page: #F7F4EC;
@@ -722,4 +728,25 @@ textarea.form-control {
   .btn-icon:hover:not(:disabled) {
     transform: none !important;
   }
+}
+/* Alerts */
+.alert {
+  border-radius: 10px;
+}
+
+.alert-warning {
+  color: var(--bs-warning-text-emphasis);
+  background-color: var(--bs-warning-bg-subtle);
+  border: 1px solid var(--bs-warning-border-subtle);
+}
+
+.btn-unstyled {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
 }
