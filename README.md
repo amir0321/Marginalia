@@ -7,7 +7,7 @@ Ett personligt bibliotek för böcker och favoritcitat. Byggt som ett praktiktes
 - **Live-applikation:** [https://cheerful-khapse-d0fc1d.netlify.app/](https://cheerful-khapse-d0fc1d.netlify.app/)
 - **Källkod (GitHub):** [https://github.com/amir0321/Marginalia](https://github.com/amir0321/Marginalia)
 - **Figma-design:** [Marginalia Design (Figma)](https://www.figma.com/design/Y9RPG9qktEoh21rKQhpBce/Untitled?node-id=1-3&m=dev&t=oRJIzL8nqgBreWKh-1&code-node-id=1-3)
-- **GitHub Project (board):** [https://github.com/users/amir0321/projects/1](https://github.com/users/amir0321/projects/1)
+- **GitHub Project (planering & board):** [https://github.com/users/amir0321/projects/8/views/1](https://github.com/users/amir0321/projects/8/views/1)
 
 > [!NOTE]
 > **Notis om uppstart:** Backend-API:t körs på Render Free Tier som automatiskt försätts i viloläge efter inaktivitet. Första anropet vid ett besök kan därför ta cirka 50–60 sekunder medan servern startar upp. Applikationen väcker automatiskt API:t i bakgrunden vid sidladdning via `GET /api/health`.

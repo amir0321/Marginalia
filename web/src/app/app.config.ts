@@ -6,6 +6,7 @@ import localeSv from '@angular/common/locales/sv';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/auth.interceptor';
+import { loadingInterceptor } from './core/loading.interceptor';
 
 registerLocaleData(localeSv);
 
@@ -14,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([loadingInterceptor, authInterceptor])),
     { provide: LOCALE_ID, useValue: 'sv-SE' },
   ],
 };

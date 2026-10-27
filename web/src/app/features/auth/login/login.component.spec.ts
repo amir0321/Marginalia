@@ -175,4 +175,14 @@ describe('LoginComponent', () => {
     expect(component.errorMessage()).toBe('För många försök. Vänta en stund och försök igen.');
     expect(component.isSubmitting()).toBeFalse();
   });
+
+  it('should display spinner and "Loggar in…" text and disable submit button when isSubmitting is true', () => {
+    component.isSubmitting.set(true);
+    fixture.detectChanges();
+
+    const submitBtn: HTMLButtonElement = fixture.nativeElement.querySelector('button[type="submit"]');
+    expect(submitBtn.disabled).toBeTrue();
+    expect(submitBtn.querySelector('.spinner-border')).toBeTruthy();
+    expect(submitBtn.textContent).toContain('Loggar in…');
+  });
 });

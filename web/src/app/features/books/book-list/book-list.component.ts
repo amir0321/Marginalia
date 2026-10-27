@@ -99,45 +99,45 @@ export class BookListComponent implements OnInit {
     const modalRef = this.modalService.open(ConfirmModalComponent, {
       centered: true,
       backdrop: true,
+      beforeDismiss: () => !modalRef.componentInstance?.isSubmitting?.(),
     });
 
-    modalRef.componentInstance.title.set('Radera bok');
-    modalRef.componentInstance.message.set(`Är du säker på att du vill radera “${book.title}”?`);
-    modalRef.componentInstance.supportText.set('Åtgärden går inte att ångra.');
-    modalRef.componentInstance.confirmText.set('Radera');
-    modalRef.componentInstance.cancelText.set('Avbryt');
+    if (modalRef?.componentInstance) {
+      modalRef.componentInstance.title.set('Radera bok');
+      modalRef.componentInstance.message.set(`Är du säker på att du vill radera “${book.title}”?`);
+      modalRef.componentInstance.supportText.set('Åtgärden går inte att ångra.');
+      modalRef.componentInstance.confirmText.set('Radera');
+      modalRef.componentInstance.cancelText.set('Avbryt');
 
-    modalRef.result.then(
-      confirmed => {
-        if (confirmed) {
-          this.bookService.delete(book.id).subscribe({
-            next: () => {
-              this.books.update(list => list.filter(b => b.id !== book.id));
-              this.toastService.show(
-                `"${book.title}" har raderats.`,
-                'success',
-                true,
-                {
-                  label: 'Ångra',
-                  onClick: () => this.restoreBook(book),
-                }
-              );
-            },
-            error: (err: unknown) => {
-              if (err instanceof HttpErrorResponse && err.status === 404) {
-                this.books.update(list => list.filter(b => b.id !== book.id));
-                this.toastService.show('Boken var redan borttagen.', 'info');
-              } else {
-                this.toastService.show('Kunde inte radera boken. Försök igen.', 'danger');
+      modalRef.componentInstance.onConfirmCallback = () => {
+        modalRef.componentInstance.isSubmitting.set(true);
+        this.bookService.delete(book.id).subscribe({
+          next: () => {
+            modalRef.close(true);
+            this.books.update(list => list.filter(b => b.id !== book.id));
+            this.toastService.show(
+              `"${book.title}" har raderats.`,
+              'success',
+              true,
+              {
+                label: 'Ångra',
+                onClick: () => this.restoreBook(book),
               }
-            },
-          });
-        }
-      },
-      () => {
-        // Avbröts
-      }
-    );
+            );
+          },
+          error: (err: unknown) => {
+            modalRef.componentInstance.isSubmitting.set(false);
+            if (err instanceof HttpErrorResponse && err.status === 404) {
+              modalRef.close(true);
+              this.books.update(list => list.filter(b => b.id !== book.id));
+              this.toastService.show('Boken var redan borttagen.', 'info');
+            } else {
+              this.toastService.show('Kunde inte radera boken. Försök igen.', 'danger');
+            }
+          },
+        });
+      };
+    }
   }
 
   restoreBook(book: Book): void {
