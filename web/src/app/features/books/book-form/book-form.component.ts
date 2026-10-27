@@ -172,6 +172,10 @@ export class BookFormComponent implements OnInit {
   private handleSaveError(err: unknown): void {
     if (err instanceof HttpErrorResponse || (typeof err === 'object' && err !== null && 'status' in err)) {
       const httpErr = err as { status?: number; error?: ProblemDetails };
+      if (httpErr.status === 404) {
+        this.serverErrorMessage.set('Boken hittades inte eller har redan raderats.');
+        return;
+      }
       if (httpErr.status === 400 && httpErr.error?.errors) {
         const errors = httpErr.error.errors;
         let hasFieldErrors = false;

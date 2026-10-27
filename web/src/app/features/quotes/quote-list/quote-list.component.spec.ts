@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Subject, of, throwError } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { QuoteListComponent } from './quote-list.component';
@@ -272,5 +273,33 @@ describe('QuoteListComponent', () => {
 
     expect(toastServiceSpy.show).toHaveBeenCalledWith('Kunde inte radera citatet. Försök igen.', 'danger');
     expect(component.quotes().some(q => q.id === quoteToDelete.id)).toBeTrue();
+  });
+
+  it('should remove quote and show info toast if delete returns 404', async () => {
+    fixture.detectChanges();
+
+    const quoteToDelete = mockQuotes[0];
+    const notFoundError = new HttpErrorResponse({ status: 404, statusText: 'Not Found' });
+    quoteServiceSpy.delete.and.returnValue(throwError(() => notFoundError));
+
+    const modalRefMock = {
+      componentInstance: {
+        title: signal(''),
+        message: signal(''),
+        supportText: signal(''),
+        confirmText: signal(''),
+        cancelText: signal(''),
+      },
+      result: Promise.resolve(true),
+    };
+    modalServiceSpy.open.and.returnValue(modalRefMock as any);
+
+    component.onDeleteQuote(quoteToDelete);
+
+    await modalRefMock.result;
+
+    expect(quoteServiceSpy.delete).toHaveBeenCalledWith(quoteToDelete.id);
+    expect(toastServiceSpy.show).toHaveBeenCalledWith('Citatet var redan borttaget.', 'info');
+    expect(component.quotes().some(q => q.id === quoteToDelete.id)).toBeFalse();
   });
 });

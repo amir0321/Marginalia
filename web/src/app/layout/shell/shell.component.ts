@@ -8,6 +8,25 @@ import { ThemeService } from '../../core/theme.service';
 import { ToastContainerComponent } from '../../shared/toast/toast-container.component';
 import { LogoComponent } from '../../shared/logo/logo.component';
 
+function getInitialUrl(router: Router, auth: AuthService): string {
+  if (typeof window !== 'undefined' && window.location?.pathname) {
+    const path = window.location.pathname;
+    if (path && path !== '/context.html') {
+      if (
+        !auth.isLoggedIn() &&
+        (path === '/' ||
+          path.startsWith('/books') ||
+          path.startsWith('/quotes') ||
+          path === '/mina-citat')
+      ) {
+        return '/login';
+      }
+      return path;
+    }
+  }
+  return router.url;
+}
+
 @Component({
   selector: 'app-shell',
   standalone: true,
@@ -36,7 +55,7 @@ export class ShellComponent {
       filter((e): e is NavigationEnd => e instanceof NavigationEnd),
       map(e => e.urlAfterRedirects)
     ),
-    { initialValue: this.router.url }
+    { initialValue: getInitialUrl(this.router, this.auth) }
   );
 
   readonly isAuthPage = computed(() => {

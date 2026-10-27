@@ -132,6 +132,11 @@ export class QuoteFormModalComponent implements OnInit {
         return;
       }
 
+      if (httpErr.status === 404) {
+        this.serverErrorMessage.set('Citatet hittades inte eller har redan raderats.');
+        return;
+      }
+
       if (httpErr.status === 400 && httpErr.error?.errors) {
         const errors = httpErr.error.errors;
         let hasFieldErrors = false;
