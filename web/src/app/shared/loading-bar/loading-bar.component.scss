@@ -1,0 +1,41 @@
+.global-loading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 1095;
+  background-color: rgba(232, 163, 61, 0.2);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.global-loading-bar-indicator {
+  height: 100%;
+  background-color: var(--amber);
+  animation: loading-bar-indeterminate 1.4s infinite ease-in-out;
+}
+
+@keyframes loading-bar-indeterminate {
+  0% {
+    transform: translateX(-100%);
+    width: 30%;
+  }
+  50% {
+    transform: translateX(50%);
+    width: 60%;
+  }
+  100% {
+    transform: translateX(200%);
+    width: 30%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .global-loading-bar-indicator {
+    animation: none;
+    width: 100%;
+    transform: none;
+    opacity: 0.8;
+  }
+}

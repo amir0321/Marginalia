@@ -7,6 +7,7 @@ import { AuthService } from '../../core/auth.service';
 import { ThemeService } from '../../core/theme.service';
 import { ToastContainerComponent } from '../../shared/toast/toast-container.component';
 import { LogoComponent } from '../../shared/logo/logo.component';
+import { LoadingBarComponent } from '../../shared/loading-bar/loading-bar.component';
 
 function getInitialUrl(router: Router, auth: AuthService): string {
   if (typeof window !== 'undefined' && window.location?.pathname) {
@@ -39,6 +40,7 @@ function getInitialUrl(router: Router, auth: AuthService): string {
     NgbDropdownModule,
     ToastContainerComponent,
     LogoComponent,
+    LoadingBarComponent,
   ],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',

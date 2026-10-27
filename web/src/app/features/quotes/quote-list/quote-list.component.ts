@@ -108,6 +108,7 @@ export class QuoteListComponent implements OnInit {
     const modalRef = this.modalService.open(ConfirmModalComponent, {
       centered: true,
       backdrop: true,
+      beforeDismiss: () => !modalRef.componentInstance?.isSubmitting?.(),
     });
 
     if (modalRef?.componentInstance) {
@@ -118,39 +119,36 @@ export class QuoteListComponent implements OnInit {
       modalRef.componentInstance.supportText.set('Åtgärden går inte att ångra.');
       modalRef.componentInstance.confirmText.set('Radera');
       modalRef.componentInstance.cancelText.set('Avbryt');
-    }
 
-    modalRef?.result?.then(
-      confirmed => {
-        if (confirmed) {
-          this.quoteService.delete(quote.id).subscribe({
-            next: () => {
-              this.quotes.update(list => list.filter(q => q.id !== quote.id));
-              this.toastService.show(
-                'Citatet har raderats.',
-                'success',
-                true,
-                {
-                  label: 'Ångra',
-                  onClick: () => this.restoreQuote(quote),
-                }
-              );
-            },
-            error: (err: unknown) => {
-              if (err instanceof HttpErrorResponse && err.status === 404) {
-                this.quotes.update(list => list.filter(q => q.id !== quote.id));
-                this.toastService.show('Citatet var redan borttaget.', 'info');
-              } else {
-                this.toastService.show('Kunde inte radera citatet. Försök igen.', 'danger');
+      modalRef.componentInstance.onConfirmCallback = () => {
+        modalRef.componentInstance.isSubmitting.set(true);
+        this.quoteService.delete(quote.id).subscribe({
+          next: () => {
+            modalRef.close(true);
+            this.quotes.update(list => list.filter(q => q.id !== quote.id));
+            this.toastService.show(
+              'Citatet har raderats.',
+              'success',
+              true,
+              {
+                label: 'Ångra',
+                onClick: () => this.restoreQuote(quote),
               }
-            },
-          });
-        }
-      },
-      () => {
-        // Avbröts
-      }
-    );
+            );
+          },
+          error: (err: unknown) => {
+            modalRef.componentInstance.isSubmitting.set(false);
+            if (err instanceof HttpErrorResponse && err.status === 404) {
+              modalRef.close(true);
+              this.quotes.update(list => list.filter(q => q.id !== quote.id));
+              this.toastService.show('Citatet var redan borttaget.', 'info');
+            } else {
+              this.toastService.show('Kunde inte radera citatet. Försök igen.', 'danger');
+            }
+          },
+        });
+      };
+    }
   }
 
   restoreQuote(quote: Quote): void {

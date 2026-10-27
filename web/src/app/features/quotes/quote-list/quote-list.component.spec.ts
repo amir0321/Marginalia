@@ -195,6 +195,7 @@ describe('QuoteListComponent', () => {
     const supportTextSignal = signal<string>('');
     const confirmTextSignal = signal<string>('');
     const cancelTextSignal = signal<string>('');
+    const isSubmittingSignal = signal<boolean>(false);
 
     const modalRefMock = {
       componentInstance: {
@@ -203,7 +204,10 @@ describe('QuoteListComponent', () => {
         supportText: supportTextSignal,
         confirmText: confirmTextSignal,
         cancelText: cancelTextSignal,
+        isSubmitting: isSubmittingSignal,
+        onConfirmCallback: undefined as (() => void) | undefined,
       },
+      close: jasmine.createSpy('close'),
       result: Promise.resolve(true),
     };
     modalServiceSpy.open.and.returnValue(modalRefMock as any);
@@ -213,10 +217,12 @@ describe('QuoteListComponent', () => {
     expect(modalServiceSpy.open).toHaveBeenCalled();
     expect(titleSignal()).toBe('Radera citat');
     expect(messageSignal()).toContain(quoteToDelete.author);
+    expect(modalRefMock.componentInstance.onConfirmCallback).toBeDefined();
 
-    await modalRefMock.result;
+    modalRefMock.componentInstance.onConfirmCallback!();
 
     expect(quoteServiceSpy.delete).toHaveBeenCalledWith(quoteToDelete.id);
+    expect(modalRefMock.close).toHaveBeenCalledWith(true);
     expect(component.quotes().some(q => q.id === quoteToDelete.id)).toBeFalse();
     expect(toastServiceSpy.show).toHaveBeenCalledWith(
       'Citatet har raderats.',
@@ -254,6 +260,7 @@ describe('QuoteListComponent', () => {
 
     const quoteToDelete = mockQuotes[0];
     quoteServiceSpy.delete.and.returnValue(throwError(() => new Error('Delete failed')));
+    const isSubmittingSignal = signal(false);
 
     const modalRefMock = {
       componentInstance: {
@@ -262,15 +269,19 @@ describe('QuoteListComponent', () => {
         supportText: signal(''),
         confirmText: signal(''),
         cancelText: signal(''),
+        isSubmitting: isSubmittingSignal,
+        onConfirmCallback: undefined as (() => void) | undefined,
       },
+      close: jasmine.createSpy('close'),
       result: Promise.resolve(true),
     };
     modalServiceSpy.open.and.returnValue(modalRefMock as any);
 
     component.onDeleteQuote(quoteToDelete);
+    modalRefMock.componentInstance.onConfirmCallback!();
 
-    await modalRefMock.result;
-
+    expect(isSubmittingSignal()).toBeFalse();
+    expect(modalRefMock.close).not.toHaveBeenCalled();
     expect(toastServiceSpy.show).toHaveBeenCalledWith('Kunde inte radera citatet. Försök igen.', 'danger');
     expect(component.quotes().some(q => q.id === quoteToDelete.id)).toBeTrue();
   });
@@ -281,6 +292,7 @@ describe('QuoteListComponent', () => {
     const quoteToDelete = mockQuotes[0];
     const notFoundError = new HttpErrorResponse({ status: 404, statusText: 'Not Found' });
     quoteServiceSpy.delete.and.returnValue(throwError(() => notFoundError));
+    const isSubmittingSignal = signal(false);
 
     const modalRefMock = {
       componentInstance: {
@@ -289,16 +301,19 @@ describe('QuoteListComponent', () => {
         supportText: signal(''),
         confirmText: signal(''),
         cancelText: signal(''),
+        isSubmitting: isSubmittingSignal,
+        onConfirmCallback: undefined as (() => void) | undefined,
       },
+      close: jasmine.createSpy('close'),
       result: Promise.resolve(true),
     };
     modalServiceSpy.open.and.returnValue(modalRefMock as any);
 
     component.onDeleteQuote(quoteToDelete);
-
-    await modalRefMock.result;
+    modalRefMock.componentInstance.onConfirmCallback!();
 
     expect(quoteServiceSpy.delete).toHaveBeenCalledWith(quoteToDelete.id);
+    expect(modalRefMock.close).toHaveBeenCalledWith(true);
     expect(toastServiceSpy.show).toHaveBeenCalledWith('Citatet var redan borttaget.', 'info');
     expect(component.quotes().some(q => q.id === quoteToDelete.id)).toBeFalse();
   });
