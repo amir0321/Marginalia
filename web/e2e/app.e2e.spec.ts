@@ -1,13 +1,17 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+
+function base64Url(str: string): string {
+  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
 
 function createMockToken(username = 'testuser'): string {
-  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
-  const payload = Buffer.from(
+  const header = base64Url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+  const payload = base64Url(
     JSON.stringify({
       unique_name: username,
       exp: Math.floor(Date.now() / 1000) + 3600,
     })
-  ).toString('base64url');
+  );
   return `${header}.${payload}.mockSignature`;
 }
 
@@ -28,6 +32,16 @@ const mockBooks = [
   },
 ];
 
+async function waitForBookList(page: Page) {
+  const viewport = page.viewportSize();
+  const isMobile = viewport ? viewport.width < 768 : false;
+  if (isMobile) {
+    await page.locator('.mobile-book-card').first().waitFor({ state: 'visible' });
+  } else {
+    await page.locator('.book-table .book-row').first().waitFor({ state: 'visible' });
+  }
+}
+
 test.describe('E2E Tests: Responsiveness, Zero Horizontal Scroll, Theme Toggle & Accessibility', () => {
   test.beforeEach(async ({ page }) => {
     // Mock health check and book API
@@ -47,7 +61,7 @@ test.describe('E2E Tests: Responsiveness, Zero Horizontal Scroll, Theme Toggle &
 
   test('should ensure 0px horizontal scroll on book list', async ({ page }) => {
     await page.goto('/books');
-    await page.waitForSelector('.book-row, .mobile-book-card');
+    await waitForBookList(page);
 
     const hasHorizontalScroll = await page.evaluate(() => {
       const doc = document.documentElement;
@@ -59,7 +73,7 @@ test.describe('E2E Tests: Responsiveness, Zero Horizontal Scroll, Theme Toggle &
 
   test('should display responsive book list correctly based on viewport', async ({ page }) => {
     await page.goto('/books');
-    await page.waitForSelector('.book-row, .mobile-book-card');
+    await waitForBookList(page);
 
     const viewport = page.viewportSize();
     const width = viewport ? viewport.width : 1440;
@@ -105,7 +119,7 @@ test.describe('E2E Tests: Responsiveness, Zero Horizontal Scroll, Theme Toggle &
 
   test('should have accessible dialog and interactive elements with no nested buttons', async ({ page }) => {
     await page.goto('/books');
-    await page.waitForSelector('.book-row, .mobile-book-card');
+    await waitForBookList(page);
 
     // Verify CustomSelect has a visible label with matching "for" attribute
     const selectLabel = page.locator('label[for="customSelectTrigger"]').first();
