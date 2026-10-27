@@ -1,6 +1,7 @@
 # Marginalia – Designsystem (Översikt)
 
-> **Stack:** Angular 20, SCSS, Bootstrap 5.3, ng-bootstrap, Font Awesome Free, `@fontsource/inter` & `@fontsource/fraunces`
+> **Stack:** Angular 20, SCSS, Bootstrap 5.3, ng-bootstrap, Font Awesome Free, `@fontsource/inter` & `@fontsource/fraunces`  
+> **Figma:** [Marginalia Design i Figma](https://www.figma.com/design/Y9RPG9qktEoh21rKQhpBce/Untitled?node-id=1-3&m=dev&t=oRJIzL8nqgBreWKh-1&code-node-id=1-3)
 
 Designsystemet är uppdelat i fyra korta deldokument i `docs/design/`:
 

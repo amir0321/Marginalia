@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Marginalia.Api.Dtos;
 using Marginalia.Api.Models;
 using Marginalia.Api.Services;
@@ -62,7 +63,33 @@ public class TokenServiceTests
         Assert.NotNull(jtiClaim);
         Assert.False(string.IsNullOrWhiteSpace(jtiClaim.Value));
 
+        Assert.Equal(SecurityAlgorithms.HmacSha256, jwtToken.Header.Alg);
         Assert.True(jwtToken.ValidTo > DateTime.UtcNow);
+        var expectedExpires = DateTime.UtcNow.AddMinutes(60);
+        var diff = (jwtToken.ValidTo - expectedExpires).Duration();
+        Assert.True(diff < TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
+    public void CreateToken_UsesHs256_AndConfigured60MinuteLifetime()
+    {
+        var service = new TokenService(_configuration);
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Username = "testuser",
+            UsernameNormalized = "TESTUSER",
+            PasswordHash = "hash"
+        };
+
+        var tokenString = service.CreateToken(user);
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(tokenString);
+
+        Assert.Equal(SecurityAlgorithms.HmacSha256, jwtToken.Header.Alg);
+        var expectedExpires = DateTime.UtcNow.AddMinutes(60);
+        var diff = (jwtToken.ValidTo - expectedExpires).Duration();
+        Assert.True(diff < TimeSpan.FromSeconds(5));
     }
 
     [Fact]
