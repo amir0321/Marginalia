@@ -3,7 +3,7 @@
 # URL-format: https://<ditt-projekt>.onrender.com
 
 # Regel 1: Proxya /api/* till Render (måste komma FÖRE SPA-regeln)
-/api/*  https://REPLACE-WITH-RENDER-URL.onrender.com/api/:splat  200
+/api/*  https://marginalia-u916.onrender.com/api/:splat  200
 
 # Regel 2: SPA-fallback – alla övriga sökvägar går till index.html
 /*      /index.html  200
