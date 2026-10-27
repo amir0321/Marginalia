@@ -115,29 +115,18 @@
           <label for="publishedDate" class="form-label">
             Publiceringsdatum <span aria-hidden="true">*</span>
           </label>
-          <div class="input-icon-group date-picker-group">
-            <button
-              type="button"
-              class="input-icon-btn"
-              (click)="onDateIconClick(dateInput)"
-              tabindex="-1"
-              aria-label="Öppna datumväljare"
-            >
-              <i class="fa-solid fa-calendar-days" aria-hidden="true"></i>
-            </button>
-            <input
-              #dateInput
-              type="date"
-              id="publishedDate"
-              class="form-control"
-              [max]="maxDate"
-              [class.is-invalid]="dateControl.invalid && (dateControl.touched || dateControl.dirty)"
-              formControlName="publishedDate"
-              aria-required="true"
-              [attr.aria-describedby]="dateControl.invalid && (dateControl.touched || dateControl.dirty) ? 'publishedDateError' : null"
-              (click)="onDateClick($event)"
-            />
-          </div>
+          <input
+            #dateInput
+            type="date"
+            id="publishedDate"
+            class="form-control"
+            [max]="maxDate"
+            [class.is-invalid]="dateControl.invalid && (dateControl.touched || dateControl.dirty)"
+            formControlName="publishedDate"
+            aria-required="true"
+            [attr.aria-describedby]="dateControl.invalid && (dateControl.touched || dateControl.dirty) ? 'publishedDateError' : null"
+            (click)="onDateClick($event)"
+          />
           @if (dateControl.invalid && (dateControl.touched || dateControl.dirty)) {
             <div class="invalid-feedback d-flex align-items-center gap-1 mt-1" id="publishedDateError" role="alert">
               <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
@@ -197,7 +186,7 @@
             [disabled]="form.invalid || isSubmitting()"
           >
             @if (isSubmitting()) {
-              <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
               <span>Sparar…</span>
             } @else {
               <i class="fa-solid fa-check" aria-hidden="true"></i>

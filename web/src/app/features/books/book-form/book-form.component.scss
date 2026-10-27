@@ -119,35 +119,6 @@ textarea.form-control {
   resize: vertical;
 }
 
-.date-picker-group {
-  .input-icon-btn {
-    position: absolute;
-    left: 4px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 36px;
-    height: 36px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    border-radius: 8px;
-    color: var(--muted);
-    cursor: pointer;
-    z-index: 4;
-    transition: color 150ms ease, background-color 150ms ease;
-
-    &:hover {
-      color: var(--ink);
-      background-color: var(--surface-2);
-    }
-  }
-
-  .form-control {
-    padding-left: 42px;
-  }
-}
 
 input[type="date"].form-control {
   cursor: pointer;
