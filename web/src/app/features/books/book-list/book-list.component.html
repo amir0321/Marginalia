@@ -213,7 +213,7 @@
 
       <section class="d-flex d-md-none flex-column gap-3" aria-label="Boklista i kort">
         @for (book of filteredBooks(); track book.id) {
-          <article class="card mobile-book-card">
+          <article class="card mobile-book-card clickable-card" (click)="onRowClick($event, book)">
             <div class="d-flex align-items-start gap-3 mobile-card-header">
               <button
                 type="button"
@@ -246,7 +246,7 @@
               <time class="mobile-book-date text-muted" [attr.datetime]="book.publishedDate">
                 {{ book.publishedDate | date:'d MMM yyyy' }}
               </time>
-              <div class="d-inline-flex align-items-center gap-1">
+              <div class="d-inline-flex align-items-center gap-1 action-buttons">
                 <a
                   [routerLink]="['/books', book.id, 'edit']"
                   class="btn btn-ghost btn-sm"
