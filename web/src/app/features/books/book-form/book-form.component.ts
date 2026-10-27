@@ -125,14 +125,6 @@ export class BookFormComponent implements OnInit {
     }
   }
 
-  onDateIconClick(input: HTMLInputElement): void {
-    try {
-      input.showPicker?.();
-    } catch {
-      input.focus();
-    }
-  }
-
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();

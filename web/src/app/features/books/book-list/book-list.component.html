@@ -90,7 +90,6 @@
       [description]="errorMessage()!"
     >
       <button type="button" class="btn btn-primary d-inline-flex align-items-center gap-2" (click)="loadBooks()">
-        <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
         <span>Försök igen</span>
       </button>
     </app-empty-state>
@@ -123,7 +122,7 @@
         </div>
       </div>
 
-      <div>
+      <div class="sort-container">
         <app-custom-select
           label="Sortera"
           [options]="sortOptions"
@@ -147,21 +146,28 @@
             </thead>
             <tbody>
               @for (book of filteredBooks(); track book.id) {
-                <tr
-                  class="book-row clickable-row"
-                  (click)="openDetail(book)"
-                  tabindex="0"
-                  (keydown.enter)="openDetail(book)"
-                  role="button"
-                  [attr.aria-label]="'Visa detaljer för ' + book.title"
-                >
+                <tr class="book-row clickable-row" (click)="onRowClick($event, book)">
                   <td class="ps-4">
                     <div class="d-flex align-items-center gap-3">
-                      <div class="book-glyph" aria-hidden="true">
-                        <i class="fa-solid fa-book-open"></i>
-                      </div>
+                      <button
+                        type="button"
+                        class="btn-unstyled book-glyph-btn"
+                        (click)="openDetail(book)"
+                        [attr.aria-label]="'Visa detaljer för ' + book.title"
+                      >
+                        <div class="book-glyph" aria-hidden="true">
+                          <i class="fa-solid fa-book-open"></i>
+                        </div>
+                      </button>
                       <div class="d-flex flex-column min-w-0">
-                        <span class="fw-semibold text-body book-title-text">{{ book.title }}</span>
+                        <button
+                          type="button"
+                          class="btn-unstyled book-title-btn text-start p-0"
+                          (click)="openDetail(book)"
+                          [attr.aria-label]="'Visa detaljer för ' + book.title"
+                        >
+                          <span class="fw-semibold text-body book-title-text">{{ book.title }}</span>
+                        </button>
                         @if (book.description) {
                           <small
                             class="book-desc-text text-muted text-truncate"
@@ -177,13 +183,12 @@
                   <td class="text-muted">
                     <time [attr.datetime]="book.publishedDate">{{ book.publishedDate | date:'d MMM yyyy' }}</time>
                   </td>
-                  <td class="pe-4 text-end" (click)="$event.stopPropagation()">
+                  <td class="pe-4 text-end">
                     <div class="d-inline-flex align-items-center gap-1 action-buttons">
                       <a
                         [routerLink]="['/books', book.id, 'edit']"
                         class="btn btn-ghost"
                         aria-label="Redigera bok"
-                        (click)="$event.stopPropagation()"
                       >
                         <i class="fa-solid fa-pen" aria-hidden="true"></i>
                         <span class="d-none d-lg-inline">Redigera</span>
@@ -191,7 +196,7 @@
                       <button
                         type="button"
                         class="btn btn-ghost is-danger"
-                        (click)="$event.stopPropagation(); onDelete(book)"
+                        (click)="onDelete(book)"
                         aria-label="Radera bok"
                       >
                         <i class="fa-solid fa-trash" aria-hidden="true"></i>
@@ -208,20 +213,27 @@
 
       <section class="d-flex d-md-none flex-column gap-3" aria-label="Boklista i kort">
         @for (book of filteredBooks(); track book.id) {
-          <article
-            class="card mobile-book-card clickable-card"
-            (click)="openDetail(book)"
-            role="button"
-            tabindex="0"
-            (keydown.enter)="openDetail(book)"
-            [attr.aria-label]="'Visa detaljer för ' + book.title"
-          >
+          <article class="card mobile-book-card">
             <div class="d-flex align-items-start gap-3 mobile-card-header">
-              <div class="book-glyph" aria-hidden="true">
-                <i class="fa-solid fa-book-open"></i>
-              </div>
+              <button
+                type="button"
+                class="btn-unstyled book-glyph-btn"
+                (click)="openDetail(book)"
+                [attr.aria-label]="'Visa detaljer för ' + book.title"
+              >
+                <div class="book-glyph" aria-hidden="true">
+                  <i class="fa-solid fa-book-open"></i>
+                </div>
+              </button>
               <div class="flex-grow-1 min-w-0">
-                <h2 class="mobile-book-title mb-1">{{ book.title }}</h2>
+                <button
+                  type="button"
+                  class="btn-unstyled mobile-book-title-btn text-start p-0 w-100"
+                  (click)="openDetail(book)"
+                  [attr.aria-label]="'Visa detaljer för ' + book.title"
+                >
+                  <h2 class="mobile-book-title mb-1">{{ book.title }}</h2>
+                </button>
                 <p class="mobile-book-author mb-0 text-muted">{{ book.author }}</p>
                 @if (book.description) {
                   <p class="mobile-book-desc text-muted mb-0 mt-1" [title]="book.description">
@@ -234,12 +246,11 @@
               <time class="mobile-book-date text-muted" [attr.datetime]="book.publishedDate">
                 {{ book.publishedDate | date:'d MMM yyyy' }}
               </time>
-              <div class="d-inline-flex align-items-center gap-1" (click)="$event.stopPropagation()">
+              <div class="d-inline-flex align-items-center gap-1">
                 <a
                   [routerLink]="['/books', book.id, 'edit']"
                   class="btn btn-ghost btn-sm"
                   aria-label="Redigera bok"
-                  (click)="$event.stopPropagation()"
                 >
                   <i class="fa-solid fa-pen" aria-hidden="true"></i>
                   <span>Redigera</span>
@@ -247,7 +258,7 @@
                 <button
                   type="button"
                   class="btn btn-ghost is-danger btn-sm"
-                  (click)="$event.stopPropagation(); onDelete(book)"
+                  (click)="onDelete(book)"
                   aria-label="Radera bok"
                 >
                   <i class="fa-solid fa-trash" aria-hidden="true"></i>

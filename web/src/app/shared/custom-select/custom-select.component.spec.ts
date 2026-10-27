@@ -32,4 +32,10 @@ describe('CustomSelectComponent', () => {
     component.selectOption('option-2');
     expect(component.value()).toBe('option-2');
   });
+
+  it('should render a visible label with for attribute matching button id', () => {
+    const labelEl = fixture.nativeElement.querySelector('label[for="customSelectTrigger"]') as HTMLLabelElement;
+    expect(labelEl).toBeTruthy();
+    expect(labelEl.textContent?.trim()).toBe('Sortera');
+  });
 });

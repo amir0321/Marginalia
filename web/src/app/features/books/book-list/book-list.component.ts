@@ -80,6 +80,12 @@ export class BookListComponent implements OnInit {
     });
   }
 
+  onRowClick(event: MouseEvent, book: Book): void {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest(".action-buttons, button, a")) return;
+    this.openDetail(book);
+  }
+
   openDetail(book: Book): void {
     const modalRef = this.modalService.open(BookDetailModalComponent, {
       centered: true,
