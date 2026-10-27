@@ -177,6 +177,30 @@ describe('QuoteFormModalComponent', () => {
     expect(component.authorControl.getError('server')).toBe('Författaren får vara högst 200 tecken');
   });
 
+  it('should handle 404 not found error when updating quote', () => {
+    fixture.detectChanges();
+    component.quote.set({
+      id: 'quote-1',
+      text: 'Gammal text',
+      author: 'Gammal författare',
+    });
+
+    quoteServiceSpy.update.and.returnValue(
+      throwError(() => new HttpErrorResponse({
+        status: 404,
+        statusText: 'Not Found',
+      }))
+    );
+
+    component.form.controls.text.setValue('Ny text');
+    component.form.controls.author.setValue('Ny författare');
+
+    component.onSubmit();
+
+    expect(component.serverErrorMessage()).toBe('Citatet hittades inte eller har redan raderats.');
+    expect(component.isSubmitting()).toBeFalse();
+  });
+
   it('should dismiss modal on close or cancel', () => {
     fixture.detectChanges();
 

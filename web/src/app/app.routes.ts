@@ -1,9 +1,15 @@
 import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
 import { authGuard } from './core/auth.guard';
 import { guestGuard } from './core/guest.guard';
+import { AuthService } from './core/auth.service';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'books', pathMatch: 'full' },
+  {
+    path: '',
+    redirectTo: () => (inject(AuthService).isLoggedIn() ? 'books' : 'login'),
+    pathMatch: 'full',
+  },
 
   {
     path: 'login',
