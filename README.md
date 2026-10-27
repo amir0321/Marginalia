@@ -1,9 +1,11 @@
 # Marginalia
 
+[![CI](https://github.com/amir0321/Marginalia/actions/workflows/ci.yml/badge.svg)](https://github.com/amir0321/Marginalia/actions/workflows/ci.yml)
+
 Ett personligt bibliotek för böcker och favoritcitat. Byggt som ett
 praktiktest: en responsiv CRUD-applikation med JWT-autentisering.
 
-**Live-version:** _läggs till vid publicering_
+**Live-version:** [https://cheerful-khapse-d0fc1d.netlify.app/](https://cheerful-khapse-d0fc1d.netlify.app/)
 **GitHub Project (board):** _länk till tavlan_
 
 ## Funktioner
@@ -210,6 +212,52 @@ Projektet använder en automatiserad kontinuerlig integrationspipeline via GitHu
      - Kör samtliga enhetstester: `npx ng test --watch=false --browsers=ChromeHeadless`
   3. **`docker` (Container Build):**
      - Verifierar att API-containern bygger felfritt: `docker build -t marginalia-api:ci ./api/Marginalia.Api`
+
+### Deploy-process och automatisk publicering
+
+Marginalia tillämpar automatisk driftsättning vid uppdatering av `main`. För att garantera att endast stabil och felfri kod når produktionsmiljön krävs att alla automatiserade kvalitetskontroller i CI godkänts innan ändringar får slås samman med produktionsgrenen.
+
+#### Arbetsflöde för publicering
+1. Utveckling sker i isolerade feature-grenar (`feat/*`, `fix/*`, `chore/*`).
+2. Pull Request öppnas mot integrationsgrenen `develop`.
+3. GitHub Actions körs automatiskt och validerar API, web och containerbygge.
+4. Efter godkänd CI mergas ändringen till `develop`.
+5. Inför release öppnas en Pull Request från `develop` till `main`.
+6. Först när alla CI-kontroller är **helt gröna** mergas ändringen in i `main`.
+7. **Automatisk publicering triggas:**
+   - **Netlify:** Bygger och publicerar Angular-frontend (`web`) från `main` till globala CDN-noder.
+   - **Render:** Med inställningen *Auto-Deploy: After CI Checks Pass* bygger och driftsätter Render automatiskt den uppdaterade Docker-containern för .NET-API:t (`api/Marginalia.Api`).
+
+```mermaid
+flowchart LR
+    subgraph Utveckling
+        F["Feature Branch"] -->|PR| D["develop"]
+    end
+    subgraph Kvalitetssakring["Kvalitetssäkring (CI)"]
+        D -->|PR| M["main"]
+        M --> CI{"GitHub Actions CI\n(api, web, docker)"}
+    end
+    subgraph Produktion["Produktion (Deploy)"]
+        CI -->|Grön / Godkänd| Netlify["Netlify\n(Angular SPA)"]
+        CI -->|Grön / Godkänd| Render["Render\n(Docker API)"]
+        Render --> Neon[("Neon\n(PostgreSQL)")]
+    end
+```
+
+#### Övervakning och deploy-status
+- **GitHub:** Grön bock bredvid den senaste commiten på `main` bekräftar att CI-pipelinen har passerat.
+- **Netlify:** Under fliken **Deploys** i Netlify Dashboard syns byggstatus i realtid ("Building" → "Published").
+- **Render:** Under fliken **Events** och **Logs** i Render Dashboard visas byggloggen och containerstart fram till status "Live".
+
+#### Återställning (Rollback)
+Om en oväntad regression eller ett driftfel skulle uppstå i produktion kan miljön återställas omedelbart utan att ny kod behöver checkas in:
+- **Netlify (Frontend):** Gå till **Deploys**, klicka på en tidigare fungerande deploy i historiken och välj **Publish deploy**. Netlify växlar omedelbart CDN-trafiken till den stabila versionen.
+- **Render (API):** Gå till **Events** (eller **Deploys**), klicka på menyikonen (`...`) vid den senaste stabila deployen och välj **Rollback to this deploy**.
+
+#### Hantering av viloläge (Render Free Tier)
+Efter cirka 15 minuters inaktivitet går Render Free-instansen i viloläge för att spara resurser.
+- Vid nästa inkommande anrop tar uppstarten cirka 50–60 sekunder.
+- Applikationens frontend hanterar detta automatiskt via `ApiWakeService`: vid appstart skickas en bakgrundsförfrågan till `/api/health`. Om API:t sover visas en diskret informationstoast för användaren medan anropet repeteras tills servern är vaken och redo.
 
 ## Versionshantering och arbetssätt
 
