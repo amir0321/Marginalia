@@ -39,6 +39,16 @@
   --bs-danger-text-emphasis: #B42318;
   --bs-danger-bg-subtle: #FEF3F2;
   --bs-danger-border-subtle: #FECDCA;
+
+  --white: #FFFFFF;
+  --paper-page: #F7F4EC;
+  --paper-edge: #E9E4D8;
+  --paper-gradient: #ECE7DB;
+  --paper-spine-1: #D5D0C3;
+  --paper-spine-2: #B8B2A2;
+  --paper-shadow: 0 24px 48px rgba(0, 0, 0, .35), 0 2px 10px rgba(0, 0, 0, .2);
+  --paper-ink: #1F3A5F;
+  --shadow-dropdown: 0 12px 32px rgba(16, 24, 40, .12);
 }
 
 [data-bs-theme="dark"] {
@@ -69,6 +79,16 @@
   --bs-danger-text-emphasis: #FDA29B;
   --bs-danger-bg-subtle: rgba(240, 68, 56, .10);
   --bs-danger-border-subtle: rgba(240, 68, 56, .25);
+
+  --white: #FFFFFF;
+  --paper-page: #F7F4EC;
+  --paper-edge: #E9E4D8;
+  --paper-gradient: #ECE7DB;
+  --paper-spine-1: #D5D0C3;
+  --paper-spine-2: #B8B2A2;
+  --paper-shadow: 0 24px 48px rgba(0, 0, 0, .35), 0 2px 10px rgba(0, 0, 0, .2);
+  --paper-ink: #1F3A5F;
+  --shadow-dropdown: 0 12px 32px rgba(0, 0, 0, .35);
 }
 
 /* Typography */

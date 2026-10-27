@@ -41,7 +41,7 @@
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 12px 32px rgba(16, 24, 40, 0.12);
+  box-shadow: var(--shadow-dropdown);
   min-width: 160px;
   z-index: 1050;
   margin-top: 4px !important;
