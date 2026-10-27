@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Subject, of, throwError } from 'rxjs';
@@ -271,6 +272,7 @@ describe('BookListComponent', () => {
   it('should open confirm modal and delete book on confirm', fakeAsync(() => {
     fixture.detectChanges();
 
+    const isSubmittingSignal = signal(false);
     const modalRefSpy = {
       componentInstance: {
         title: { set: jasmine.createSpy('title.set') },
@@ -278,7 +280,10 @@ describe('BookListComponent', () => {
         supportText: { set: jasmine.createSpy('supportText.set') },
         confirmText: { set: jasmine.createSpy('confirmText.set') },
         cancelText: { set: jasmine.createSpy('cancelText.set') },
+        isSubmitting: isSubmittingSignal,
+        onConfirmCallback: undefined as (() => void) | undefined,
       },
+      close: jasmine.createSpy('close'),
       result: Promise.resolve(true),
     };
 
@@ -287,12 +292,16 @@ describe('BookListComponent', () => {
 
     const bookToDelete = mockBooks[0];
     component.onDelete(bookToDelete);
+    expect(modalRefSpy.componentInstance.onConfirmCallback).toBeDefined();
+
+    modalRefSpy.componentInstance.onConfirmCallback!();
     tick();
 
     expect(modalServiceSpy.open).toHaveBeenCalled();
     expect(modalRefSpy.componentInstance.title.set).toHaveBeenCalledWith('Radera bok');
     expect(modalRefSpy.componentInstance.message.set).toHaveBeenCalledWith('Är du säker på att du vill radera “Ett eget rum”?');
     expect(bookServiceSpy.delete).toHaveBeenCalledWith(bookToDelete.id);
+    expect(modalRefSpy.close).toHaveBeenCalledWith(true);
     expect(component.books().length).toBe(2);
     expect(toastServiceSpy.show).toHaveBeenCalledWith(
       '"Ett eget rum" har raderats.',
@@ -328,6 +337,7 @@ describe('BookListComponent', () => {
   it('should show error toast if delete request fails', fakeAsync(() => {
     fixture.detectChanges();
 
+    const isSubmittingSignal = signal(false);
     const modalRefSpy = {
       componentInstance: {
         title: { set: jasmine.createSpy('title.set') },
@@ -335,7 +345,10 @@ describe('BookListComponent', () => {
         supportText: { set: jasmine.createSpy('supportText.set') },
         confirmText: { set: jasmine.createSpy('confirmText.set') },
         cancelText: { set: jasmine.createSpy('cancelText.set') },
+        isSubmitting: isSubmittingSignal,
+        onConfirmCallback: undefined as (() => void) | undefined,
       },
+      close: jasmine.createSpy('close'),
       result: Promise.resolve(true),
     };
 
@@ -343,9 +356,12 @@ describe('BookListComponent', () => {
     bookServiceSpy.delete.and.returnValue(throwError(() => new Error('Delete error')));
 
     component.onDelete(mockBooks[0]);
+    modalRefSpy.componentInstance.onConfirmCallback!();
     tick();
 
     expect(bookServiceSpy.delete).toHaveBeenCalledWith(mockBooks[0].id);
+    expect(isSubmittingSignal()).toBeFalse();
+    expect(modalRefSpy.close).not.toHaveBeenCalled();
     expect(component.books().length).toBe(3);
     expect(toastServiceSpy.show).toHaveBeenCalledWith('Kunde inte radera boken. Försök igen.', 'danger');
   }));
@@ -353,6 +369,7 @@ describe('BookListComponent', () => {
   it('should not delete book if modal is cancelled or dismissed', fakeAsync(() => {
     fixture.detectChanges();
 
+    const isSubmittingSignal = signal(false);
     const modalRefSpy = {
       componentInstance: {
         title: { set: jasmine.createSpy('title.set') },
@@ -360,8 +377,11 @@ describe('BookListComponent', () => {
         supportText: { set: jasmine.createSpy('supportText.set') },
         confirmText: { set: jasmine.createSpy('confirmText.set') },
         cancelText: { set: jasmine.createSpy('cancelText.set') },
+        isSubmitting: isSubmittingSignal,
+        onConfirmCallback: undefined as (() => void) | undefined,
       },
-      result: Promise.reject('cancel'),
+      close: jasmine.createSpy('close'),
+      result: Promise.resolve('cancel'),
     };
 
     modalServiceSpy.open.and.returnValue(modalRefSpy as any);
@@ -376,6 +396,7 @@ describe('BookListComponent', () => {
   it('should remove book and show info toast if delete returns 404', fakeAsync(() => {
     fixture.detectChanges();
 
+    const isSubmittingSignal = signal(false);
     const modalRefSpy = {
       componentInstance: {
         title: { set: jasmine.createSpy('title.set') },
@@ -383,7 +404,10 @@ describe('BookListComponent', () => {
         supportText: { set: jasmine.createSpy('supportText.set') },
         confirmText: { set: jasmine.createSpy('confirmText.set') },
         cancelText: { set: jasmine.createSpy('cancelText.set') },
+        isSubmitting: isSubmittingSignal,
+        onConfirmCallback: undefined as (() => void) | undefined,
       },
+      close: jasmine.createSpy('close'),
       result: Promise.resolve(true),
     };
 
@@ -392,9 +416,11 @@ describe('BookListComponent', () => {
     bookServiceSpy.delete.and.returnValue(throwError(() => notFoundError));
 
     component.onDelete(mockBooks[0]);
+    modalRefSpy.componentInstance.onConfirmCallback!();
     tick();
 
     expect(bookServiceSpy.delete).toHaveBeenCalledWith(mockBooks[0].id);
+    expect(modalRefSpy.close).toHaveBeenCalledWith(true);
     expect(component.books().length).toBe(2);
     expect(toastServiceSpy.show).toHaveBeenCalledWith('Boken var redan borttagen.', 'info');
   }));

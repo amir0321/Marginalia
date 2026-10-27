@@ -77,4 +77,36 @@ describe('ConfirmModalComponent', () => {
 
     expect(activeModalSpy.dismiss).toHaveBeenCalledWith('cancel');
   });
+
+  it('should display spinner, "Raderar…" text, and disable all buttons when isSubmitting is true', () => {
+    component.isSubmitting.set(true);
+    fixture.detectChanges();
+
+    const confirmBtn = fixture.nativeElement.querySelector('.btn-danger') as HTMLButtonElement;
+    const cancelBtn = fixture.nativeElement.querySelector('.btn-secondary') as HTMLButtonElement;
+    const closeBtn = fixture.nativeElement.querySelector('.btn-icon') as HTMLButtonElement;
+
+    expect(confirmBtn.disabled).toBeTrue();
+    expect(cancelBtn.disabled).toBeTrue();
+    expect(closeBtn.disabled).toBeTrue();
+    expect(confirmBtn.querySelector('.spinner-border')).toBeTruthy();
+    expect(confirmBtn.textContent).toContain('Raderar…');
+
+    confirmBtn.click();
+    cancelBtn.click();
+    closeBtn.click();
+    expect(activeModalSpy.close).not.toHaveBeenCalled();
+    expect(activeModalSpy.dismiss).not.toHaveBeenCalled();
+  });
+
+  it('should invoke onConfirmCallback when defined', () => {
+    const callbackSpy = jasmine.createSpy('onConfirmCallback');
+    component.onConfirmCallback = callbackSpy;
+
+    const confirmBtn = fixture.nativeElement.querySelector('.btn-danger') as HTMLButtonElement;
+    confirmBtn.click();
+
+    expect(callbackSpy).toHaveBeenCalled();
+    expect(activeModalSpy.close).not.toHaveBeenCalled();
+  });
 });

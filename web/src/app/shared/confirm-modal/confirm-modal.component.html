@@ -4,7 +4,8 @@
       type="button"
       class="btn-icon"
       aria-label="Stäng dialog"
-      (click)="activeModal.dismiss('cancel')"
+      [disabled]="isSubmitting()"
+      (click)="dismiss('cancel')"
     >
       <i class="fa-solid fa-xmark" aria-hidden="true"></i>
     </button>
@@ -26,16 +27,23 @@
     <button
       type="button"
       class="btn btn-secondary"
-      (click)="activeModal.dismiss('cancel')"
+      [disabled]="isSubmitting()"
+      (click)="dismiss('cancel')"
     >
       {{ cancelText() }}
     </button>
     <button
       type="button"
       class="btn btn-danger"
-      (click)="activeModal.close(true)"
+      [disabled]="isSubmitting()"
+      (click)="onConfirm()"
     >
-      {{ confirmText() }}
+      @if (isSubmitting()) {
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        <span>Raderar…</span>
+      } @else {
+        {{ confirmText() }}
+      }
     </button>
   </footer>
 </div>
