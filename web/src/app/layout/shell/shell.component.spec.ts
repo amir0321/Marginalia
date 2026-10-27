@@ -36,6 +36,8 @@ describe('ShellComponent', () => {
         provideRouter([
           { path: 'books', component: DummyComponent },
           { path: 'quotes', component: DummyComponent },
+          { path: 'login', component: DummyComponent },
+          { path: 'register', component: DummyComponent },
         ]),
         { provide: AuthService, useValue: authSpy },
         { provide: ThemeService, useValue: themeSpy },
@@ -153,5 +155,25 @@ describe('ShellComponent', () => {
     component.isCollapsed.set(false);
     component.onEscape();
     expect(component.isCollapsed()).toBeTrue();
+  });
+
+  it('should hide header and footer on auth pages like /login and /register', async () => {
+    expect(fixture.nativeElement.querySelector('.app-header')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.app-footer')).toBeTruthy();
+    expect(component.isAuthPage()).toBeFalse();
+
+    await router.navigate(['/login']);
+    fixture.detectChanges();
+
+    expect(component.isAuthPage()).toBeTrue();
+    expect(fixture.nativeElement.querySelector('.app-header')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.app-footer')).toBeNull();
+
+    await router.navigate(['/books']);
+    fixture.detectChanges();
+
+    expect(component.isAuthPage()).toBeFalse();
+    expect(fixture.nativeElement.querySelector('.app-header')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.app-footer')).toBeTruthy();
   });
 });

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { EmptyStateComponent } from '../../../shared/empty-state/empty-state.component';
@@ -122,8 +123,13 @@ export class BookListComponent implements OnInit {
                 }
               );
             },
-            error: () => {
-              this.toastService.show('Kunde inte radera boken. Försök igen.', 'danger');
+            error: (err: unknown) => {
+              if (err instanceof HttpErrorResponse && err.status === 404) {
+                this.books.update(list => list.filter(b => b.id !== book.id));
+                this.toastService.show('Boken var redan borttagen.', 'info');
+              } else {
+                this.toastService.show('Kunde inte radera boken. Försök igen.', 'danger');
+              }
             },
           });
         }

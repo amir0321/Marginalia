@@ -1,59 +1,73 @@
-# MarginaliaWeb
+# Marginalia – Frontend (Web)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.40.
+Klientapplikationen för Marginalia, byggd som en Single Page Application (SPA) med **Angular 20**, **Bootstrap 5.3** och **Font Awesome**.
 
-## Development server
+För övergripande arkitektur och systemdokumentation, se [huvud-README i projektets rot](../README.md).
 
-To start a local development server, run:
+## Funktioner i frontend
+- **Autentisering & Rutter:** Inloggning och registrering med JWT, automatisk bifogning av Bearer-tokens via `authInterceptor`, skyddade rutter via `authGuard` och `guestGuard`.
+- **Bokhantering (CRUD):** Biblioteksvy med realtidssökning och sortering (A–Ö, nyast först), formulär för att lägga till/redigera böcker, detaljmodal samt radering med bekräftelsedialog.
+- **Mina citat (CRUD):** Responsivt galleri för favoritcitat med en strikt gräns på max 5 citat per användare och modal för att skapa/redigera citat.
+- **Tema:** Växling mellan ljust och mörkt läge med omedelbar persistens i `localStorage`.
+- **Design & Tillgänglighet:** Byggd efter specifikationen i `docs/design-system.md` med typografi från `@fontsource/fraunces` och `@fontsource/inter`. Fullt responsiv från 320 px upp till 1440 px+.
 
+## Köra lokalt
+
+### Förutsättningar
+- Node.js ≥ 20
+- npm ≥ 10
+
+### 1. Installera beroenden
 ```bash
-ng serve
+npm install
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
+### 2. Starta utvecklingsservern
 ```bash
-ng generate component component-name
+npm start
+```
+Frontend startar på **http://localhost:4200**.
+
+### 3. API-proxy vid utveckling
+Alla HTTP-anrop mot `/api/*` vidarebefordras automatiskt till backend på `http://localhost:5080` via konfigurationen i `proxy.conf.json`:
+```json
+{
+  "/api": {
+    "target": "http://localhost:5080",
+    "secure": false
+  }
+}
+```
+Detta eliminerar behovet av CORS under lokal utveckling.
+
+## Tester och kvalitetssäkring
+
+### Enhetstester (Karma + Jasmine)
+Kör alla enhetstester i headless Chrome:
+```bash
+npx ng test --watch=false --browsers=ChromeHeadless
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
+Kör med kodtäckningsrapport:
 ```bash
-ng generate --help
+npx ng test --watch=false --browsers=ChromeHeadless --code-coverage
 ```
 
-## Building
-
-To build the project run:
-
+### End-to-end-tester (Playwright)
+Kör E2E-testerna för responsivitet, noll horisontell scrollning och tillgänglighet:
 ```bash
-ng build
+npm run test:e2e
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
+## Bygg för produktion
 ```bash
-ng test
+npm run build
 ```
+De optimerade produktionsfilerna genereras i mappen `dist/marginalia-web/`.
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
+## Produktionsdrift
+Frontend publiceras automatiskt via **Netlify**. Vidarebefordran av anrop till API:t styrs via regeln i `public/_redirects`:
+```text
+/api/*  https://marginalia-u916.onrender.com/api/:splat  200
+/*      /index.html                                      200
 ```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

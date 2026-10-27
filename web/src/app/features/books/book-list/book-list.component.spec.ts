@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Subject, of, throwError } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { BookListComponent } from './book-list.component';
@@ -370,5 +371,31 @@ describe('BookListComponent', () => {
 
     expect(bookServiceSpy.delete).not.toHaveBeenCalled();
     expect(component.books().length).toBe(3);
+  }));
+
+  it('should remove book and show info toast if delete returns 404', fakeAsync(() => {
+    fixture.detectChanges();
+
+    const modalRefSpy = {
+      componentInstance: {
+        title: { set: jasmine.createSpy('title.set') },
+        message: { set: jasmine.createSpy('message.set') },
+        supportText: { set: jasmine.createSpy('supportText.set') },
+        confirmText: { set: jasmine.createSpy('confirmText.set') },
+        cancelText: { set: jasmine.createSpy('cancelText.set') },
+      },
+      result: Promise.resolve(true),
+    };
+
+    modalServiceSpy.open.and.returnValue(modalRefSpy as any);
+    const notFoundError = new HttpErrorResponse({ status: 404, statusText: 'Not Found' });
+    bookServiceSpy.delete.and.returnValue(throwError(() => notFoundError));
+
+    component.onDelete(mockBooks[0]);
+    tick();
+
+    expect(bookServiceSpy.delete).toHaveBeenCalledWith(mockBooks[0].id);
+    expect(component.books().length).toBe(2);
+    expect(toastServiceSpy.show).toHaveBeenCalledWith('Boken var redan borttagen.', 'info');
   }));
 });

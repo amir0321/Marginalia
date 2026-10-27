@@ -346,5 +346,45 @@ describe('BookFormComponent', () => {
       expect(toastServiceSpy.show).toHaveBeenCalledWith('"Ett eget rum (Reviderad)" har uppdaterats.', 'success');
       expect(router.navigate).toHaveBeenCalledWith(['/books']);
     }));
+
+    it('should show specific message when update returns 404', fakeAsync(() => {
+      bookServiceSpy = jasmine.createSpyObj<BookService>('BookService', ['getById', 'create', 'update']);
+      bookServiceSpy.getById.and.returnValue(of(mockBook));
+      const notFoundError = new HttpErrorResponse({ status: 404, statusText: 'Not Found' });
+      bookServiceSpy.update.and.returnValue(throwError(() => notFoundError));
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        imports: [BookFormComponent],
+        providers: [
+          provideRouter([]),
+          {
+            provide: ActivatedRoute,
+            useValue: {
+              snapshot: {
+                paramMap: {
+                  get: (key: string) => (key === 'id' ? mockBook.id : null),
+                },
+              },
+            },
+          },
+          { provide: BookService, useValue: bookServiceSpy },
+          { provide: ToastService, useValue: toastServiceSpy },
+        ],
+      });
+
+      router = TestBed.inject(Router);
+      fixture = TestBed.createComponent(BookFormComponent);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+      tick();
+
+      component.onSubmit();
+      tick();
+      fixture.detectChanges();
+
+      expect(component.serverErrorMessage()).toBe('Boken hittades inte eller har redan raderats.');
+      expect(component.isSubmitting()).toBeFalse();
+    }));
   });
 });

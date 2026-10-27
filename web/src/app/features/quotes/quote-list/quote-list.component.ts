@@ -6,6 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { EmptyStateComponent } from '../../../shared/empty-state/empty-state.component';
 import { ConfirmModalComponent } from '../../../shared/confirm-modal/confirm-modal.component';
@@ -135,8 +136,13 @@ export class QuoteListComponent implements OnInit {
                 }
               );
             },
-            error: () => {
-              this.toastService.show('Kunde inte radera citatet. Försök igen.', 'danger');
+            error: (err: unknown) => {
+              if (err instanceof HttpErrorResponse && err.status === 404) {
+                this.quotes.update(list => list.filter(q => q.id !== quote.id));
+                this.toastService.show('Citatet var redan borttaget.', 'info');
+              } else {
+                this.toastService.show('Kunde inte radera citatet. Försök igen.', 'danger');
+              }
             },
           });
         }
