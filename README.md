@@ -12,6 +12,21 @@ Ett personligt bibliotek för böcker och favoritcitat. Byggt som ett praktiktes
 > [!NOTE]
 > **Notis om uppstart:** Backend-API:t körs på Render Free Tier som automatiskt försätts i viloläge efter inaktivitet. Första anropet vid ett besök kan därför ta cirka 50–60 sekunder medan servern startar upp. Applikationen väcker automatiskt API:t i bakgrunden vid sidladdning via `GET /api/health`.
 
+## Hur jag tänkte när jag byggde Marginalia (Mina egna val)
+
+När jag fick det här arbetsprovet var grundkraven tydliga (inloggning, CRUD för böcker och en sida för 5 favoritcitat), men många tekniska vägval lämnades öppna. Här är vad jag själv prioriterade och varför:
+
+1. **Lösa gratis-hostingens kallstarter i UI:t (`ApiWakeService`):**
+   Eftersom mitt .NET-API körs på Render Free Tier somnar containern efter 15 minuters inaktivitet och tar nästan en minut att vakna. Jag tänkte på hur det upplevs för den som ska rätta kodtestet: om man öppnar sidan, försöker skapa ett konto och knappen bara tuggar i 50 sekunder tror man att appen är trasig. Därför byggde jag en liten bakgrundstjänst som pingar `/api/health` direkt när Angular laddas och visar en diskret notis om svaret dröjer mer än 2 sekunder.
+2. **Netlify Reverse Proxy istället för CORS:**
+   Istället för att öppna upp CORS i .NET-API:et och få extra `OPTIONS`-anrop före varje request valde jag att skicka `/api/*` genom Netlifys omvända proxy (`_redirects` i produktion och `proxy.conf.json` lokalt). För webbläsaren ser både Angular-appen och .NET-API:et ut att ligga på exakt samma domän.
+3. **Angular Signals istället för tunga state-bibliotek:**
+   För en applikation med den här omfattningen kändes NgRx som onödig överengineering. Genom att använda Angular 20:s inbyggda `signal()` och `computed()` för inloggningsstatus, tema (ljust/mörkt) och sök-/sorteringsfilter blev komponenterna betydligt kortare och enklare att skriva tester för.
+4. **Svara `404 Not Found` istället för `403 Forbidden` på andras böcker:**
+   Jag valde att filtrera alla databasfrågor direkt på `UserId` från användarens JWT-token. Om någon försöker hämta eller ta bort ett bok-ID som tillhör en annan användare svarar API:et `404` istället för `403`, så att man inte kan gissa vilka ID:n som finns i databasen (skydd mot IDOR).
+5. **Hur jag använde AI under arbetet:**
+   Jag använde AI som bollplank för att granska kantfall i testerna, felsöka Docker/GitHub Actions-pipelinen och strukturera dokumentationen – medan jag själv tog alla beslut kring arkitekturen, datamodellen i EF Core och gränssnittet i Figma.
+
 ## Funktioner
 - Registrera konto och logga in (JWT)
 - Skapa, visa, redigera och radera böcker
