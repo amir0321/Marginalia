@@ -95,6 +95,34 @@ describe('ApiWakeService', () => {
     req2.flush({ status: 'ok' });
 
     expect(toastSpy.dismiss).toHaveBeenCalledWith('wake-toast-id');
+    expect(service.isAwake()).toBeTrue();
+    expect(service.isWaking()).toBeFalse();
+    expect(service.isSlowWake()).toBeFalse();
+  }));
+
+  it('should keep slow in-flight health check alive past 3000 ms and resolve waitUntilAwake when it responds', fakeAsync(() => {
+    service.wake();
+    tick(0);
+
+    const req = httpMock.expectOne('/api/health');
+
+    let wakeResolved: boolean | undefined;
+    service.waitUntilAwake().subscribe(val => {
+      wakeResolved = val;
+    });
+
+    tick(4500);
+    expect(req.cancelled).toBeFalse();
+    expect(service.isWaking()).toBeTrue();
+    expect(service.isSlowWake()).toBeTrue();
+    expect(wakeResolved).toBeUndefined();
+
+    req.flush({ status: 'ok' });
+
+    expect(wakeResolved).toBeTrue();
+    expect(service.isAwake()).toBeTrue();
+    expect(service.isWaking()).toBeFalse();
+    expect(service.isSlowWake()).toBeFalse();
   }));
 
   it('should dismiss banner when injector is destroyed before health check resolves', fakeAsync(() => {
