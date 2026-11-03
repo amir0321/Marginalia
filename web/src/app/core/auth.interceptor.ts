@@ -1,10 +1,22 @@
-import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpErrorResponse } from '@angular/common/http';
+import {
+  HttpContextToken,
+  HttpErrorResponse,
+  HttpHandlerFn,
+  HttpInterceptorFn,
+  HttpRequest,
+} from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 import { ToastService } from './toast.service';
 
+export const SUPPRESS_GATEWAY_ERROR_TOAST = new HttpContextToken<boolean>(() => false);
+
 const AUTH_PATHS_PASSTHROUGH = ['/api/auth/login', '/api/auth/register'];
+
+function isGatewayWakeStatus(status: number): boolean {
+  return status === 502 || status === 503 || status === 504;
+}
 
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
@@ -38,11 +50,20 @@ export const authInterceptor: HttpInterceptorFn = (
               'warning'
             );
           }
-        } else if (!req.url.startsWith('/api/health') && (err.status === 0 || err.status >= 500)) {
-          toast.show(
-            'Kunde inte nå servern just nu. Kontrollera din anslutning och försök igen.',
-            'danger'
-          );
+        } else {
+          const suppressGatewayToast =
+            req.context.get(SUPPRESS_GATEWAY_ERROR_TOAST) && isGatewayWakeStatus(err.status);
+
+          if (
+            !req.url.startsWith('/api/health') &&
+            !suppressGatewayToast &&
+            (err.status === 0 || err.status >= 500)
+          ) {
+            toast.show(
+              'Kunde inte nå servern just nu. Kontrollera din anslutning och försök igen.',
+              'danger'
+            );
+          }
         }
       }
       return throwError(() => err);

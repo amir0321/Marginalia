@@ -108,7 +108,7 @@
         >
           @if (isSubmitting()) {
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            <span>Loggar in…</span>
+            <span>{{ apiWake.isSlowWake() ? 'Väcker servern…' : 'Loggar in…' }}</span>
           } @else {
             <span>Logga in</span>
             <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>

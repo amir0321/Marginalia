@@ -153,6 +153,22 @@ public sealed class AuthControllerTests : IDisposable
         Assert.Equal("Användarnamnet är redan upptaget", problem.Detail);
     }
 
+    [Fact]
+    public async Task Register_NonUniqueDbUpdateException_IsNotMaskedAs409Conflict()
+    {
+        var throwingOptions = new DbContextOptionsBuilder<AppDbContext>()
+            .UseSqlite(_connection)
+            .Options;
+
+        using var throwingDb = new ThrowingInfrastructureDbContext(throwingOptions);
+        var controller = CreateController(throwingDb);
+
+        var request = new RegisterRequest("nyanvandare", "starktLosenord123");
+
+        await Assert.ThrowsAsync<DbUpdateException>(() =>
+            controller.Register(request, CancellationToken.None));
+    }
+
     [Theory]
     [InlineData("", "starktLosenord123", "Ange ett användarnamn")]
     [InlineData("   ", "starktLosenord123", "Ange ett användarnamn")]
@@ -312,6 +328,14 @@ public sealed class AuthControllerTests : IDisposable
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             throw new DbUpdateException("UNIQUE constraint failed: Users.UsernameNormalized");
+        }
+    }
+
+    private sealed class ThrowingInfrastructureDbContext(DbContextOptions<AppDbContext> options) : AppDbContext(options)
+    {
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            throw new DbUpdateException("Database connection lost during save");
         }
     }
 }

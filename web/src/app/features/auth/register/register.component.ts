@@ -11,6 +11,7 @@ import {
 } from '@angular/forms';
 import { AuthHeroComponent } from '../auth-hero/auth-hero.component';
 import { LogoComponent } from '../../../shared/logo/logo.component';
+import { ApiWakeService } from '../../../core/api-wake.service';
 import { ThemeService } from '../../../core/theme.service';
 import { AuthService } from '../../../core/auth.service';
 import { ToastService } from '../../../core/toast.service';
@@ -51,6 +52,7 @@ export class RegisterComponent {
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
+  readonly apiWake = inject(ApiWakeService);
   readonly theme = inject(ThemeService);
 
   readonly showPassword = signal(false);
