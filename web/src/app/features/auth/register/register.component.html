@@ -156,7 +156,7 @@
         >
           @if (isSubmitting()) {
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            <span>Registrerar…</span>
+            <span>{{ apiWake.isSlowWake() ? 'Väcker servern…' : 'Registrerar…' }}</span>
           } @else {
             <span>Registrera dig</span>
             <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>

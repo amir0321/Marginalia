@@ -1,7 +1,9 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, switchMap, tap, throwError } from 'rxjs';
+import { ApiWakeService } from './api-wake.service';
+import { SUPPRESS_GATEWAY_ERROR_TOAST } from './auth.interceptor';
 import { AuthResponse, LoginRequest, RegisterRequest } from './models';
 
 const TOKEN_KEY = 'marginalia.token';
@@ -20,6 +22,7 @@ function parseJwtPayload(token: string): Record<string, unknown> | null {
 export class AuthService {
   private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
+  private readonly apiWake = inject(ApiWakeService);
 
   private readonly _token = signal<string | null>(this.readToken());
 
@@ -61,13 +64,40 @@ export class AuthService {
   }
 
   login(request: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>('/api/auth/login', request).pipe(
-      tap(response => this.setToken(response.token))
-    );
+    return this.executeWithWakeRetry(suppressToast =>
+      this.http.post<AuthResponse>('/api/auth/login', request, {
+        context: new HttpContext().set(SUPPRESS_GATEWAY_ERROR_TOAST, suppressToast),
+      })
+    ).pipe(tap(response => this.setToken(response.token)));
   }
 
   register(request: RegisterRequest): Observable<void> {
-    return this.http.post<void>('/api/auth/register', request);
+    return this.executeWithWakeRetry(suppressToast =>
+      this.http.post<void>('/api/auth/register', request, {
+        context: new HttpContext().set(SUPPRESS_GATEWAY_ERROR_TOAST, suppressToast),
+      })
+    );
+  }
+
+  private executeWithWakeRetry<T>(
+    requestFn: (suppressGatewayToast: boolean) => Observable<T>
+  ): Observable<T> {
+    return this.apiWake.waitUntilAwake().pipe(
+      switchMap(wasAwake =>
+        requestFn(wasAwake).pipe(
+          catchError((err: unknown) => {
+            if (
+              wasAwake &&
+              err instanceof HttpErrorResponse &&
+              (err.status === 502 || err.status === 503 || err.status === 504)
+            ) {
+              return this.apiWake.wakeAndWait().pipe(switchMap(() => requestFn(false)));
+            }
+            return throwError(() => err);
+          })
+        )
+      )
+    );
   }
 
   private readToken(): string | null {

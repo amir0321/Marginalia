@@ -1,7 +1,8 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { ApiWakeService } from './api-wake.service';
 import { AuthService } from './auth.service';
 import { AuthResponse, LoginRequest, RegisterRequest } from './models';
 
@@ -122,6 +123,57 @@ describe('AuthService', () => {
 
     expect(completed).toBeTrue();
   });
+
+  it('should wait for in-progress ApiWakeService cold wake before sending POST /api/auth/register', fakeAsync(() => {
+    const apiWake = TestBed.inject(ApiWakeService);
+    apiWake.wake();
+    tick(0);
+
+    const healthReq = httpMock.expectOne('/api/health');
+
+    const registerReq: RegisterRequest = { username: 'marco', password: 'password123' };
+    let completed = false;
+    service.register(registerReq).subscribe({
+      next: () => {
+        completed = true;
+      }
+    });
+
+    httpMock.expectNone('/api/auth/register');
+
+    healthReq.flush({ status: 'ok' });
+
+    const postReq = httpMock.expectOne('/api/auth/register');
+    expect(postReq.request.method).toBe('POST');
+    expect(postReq.request.body).toEqual(registerReq);
+    postReq.flush(null, { status: 201, statusText: 'Created' });
+
+    expect(completed).toBeTrue();
+  }));
+
+  it('should wake API and retry POST /api/auth/register once when gateway returns 504', fakeAsync(() => {
+    const registerReq: RegisterRequest = { username: 'marco', password: 'password123' };
+    let completed = false;
+
+    service.register(registerReq).subscribe({
+      next: () => {
+        completed = true;
+      }
+    });
+
+    const firstAttempt = httpMock.expectOne('/api/auth/register');
+    firstAttempt.flush('Gateway Timeout', { status: 504, statusText: 'Gateway Timeout' });
+
+    tick(0);
+    const healthReq = httpMock.expectOne('/api/health');
+    healthReq.flush({ status: 'ok' });
+
+    const retryAttempt = httpMock.expectOne('/api/auth/register');
+    expect(retryAttempt.request.body).toEqual(registerReq);
+    retryAttempt.flush(null, { status: 201, statusText: 'Created' });
+
+    expect(completed).toBeTrue();
+  }));
 
   it('should purge corrupt token from localStorage on initialization and return null', () => {
     localStorage.setItem('marginalia.token', 'not-a-valid-jwt-token');

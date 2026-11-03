@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { signal, WritableSignal } from '@angular/core';
 import { Router, provideRouter } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { RegisterComponent } from './register.component';
+import { ApiWakeService } from '../../../core/api-wake.service';
 import { AuthService } from '../../../core/auth.service';
 import { ToastService } from '../../../core/toast.service';
 
@@ -11,11 +13,13 @@ describe('RegisterComponent', () => {
   let fixture: ComponentFixture<RegisterComponent>;
   let authSpy: jasmine.SpyObj<AuthService>;
   let toastSpy: jasmine.SpyObj<ToastService>;
+  let isSlowWakeSignal: WritableSignal<boolean>;
   let router: Router;
 
   beforeEach(async () => {
     authSpy = jasmine.createSpyObj('AuthService', ['register']);
     toastSpy = jasmine.createSpyObj('ToastService', ['show']);
+    isSlowWakeSignal = signal(false);
 
     await TestBed.configureTestingModule({
       imports: [RegisterComponent],
@@ -23,6 +27,7 @@ describe('RegisterComponent', () => {
         provideRouter([]),
         { provide: AuthService, useValue: authSpy },
         { provide: ToastService, useValue: toastSpy },
+        { provide: ApiWakeService, useValue: { isSlowWake: isSlowWakeSignal.asReadonly() } },
       ],
     }).compileComponents();
 
@@ -233,5 +238,15 @@ describe('RegisterComponent', () => {
     expect(submitBtn.disabled).toBeTrue();
     expect(submitBtn.querySelector('.spinner-border')).toBeTruthy();
     expect(submitBtn.textContent).toContain('Registrerar…');
+  });
+
+  it('should display "Väcker servern…" text when submitting during a slow cold wake', () => {
+    isSlowWakeSignal.set(true);
+    component.isSubmitting.set(true);
+    fixture.detectChanges();
+
+    const submitBtn: HTMLButtonElement = fixture.nativeElement.querySelector('button[type="submit"]');
+    expect(submitBtn.disabled).toBeTrue();
+    expect(submitBtn.textContent).toContain('Väcker servern…');
   });
 });

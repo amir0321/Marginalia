@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Marginalia.Api.Data;
 using Marginalia.Api.Dtos;
 using Marginalia.Api.Models;
@@ -64,7 +65,7 @@ public partial class AuthController(
         {
             await db.SaveChangesAsync(cancellationToken);
         }
-        catch (DbUpdateException)
+        catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
         {
             return Problem(
                 statusCode: StatusCodes.Status409Conflict,
@@ -211,5 +212,16 @@ public partial class AuthController(
         }
 
         ModelState.AddModelError(key, errorMessage);
+    }
+
+    private static bool IsUniqueConstraintViolation(DbUpdateException exception)
+    {
+        if (exception.InnerException is PostgresException postgresException)
+        {
+            return postgresException.SqlState == PostgresErrorCodes.UniqueViolation;
+        }
+
+        var message = exception.InnerException?.Message ?? exception.Message;
+        return message.Contains("UNIQUE constraint", StringComparison.OrdinalIgnoreCase);
     }
 }

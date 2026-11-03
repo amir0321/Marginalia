@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpClient, HttpContext, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
-import { authInterceptor } from './auth.interceptor';
+import { authInterceptor, SUPPRESS_GATEWAY_ERROR_TOAST } from './auth.interceptor';
 import { AuthService } from './auth.service';
 import { ToastService } from './toast.service';
 
@@ -191,5 +191,34 @@ describe('authInterceptor', () => {
     req.flush('Not Found', { status: 500, statusText: 'Server Error' });
 
     expect(toastSpy.show).not.toHaveBeenCalled();
+  });
+
+  it('should suppress danger toast on 504 gateway timeout when SUPPRESS_GATEWAY_ERROR_TOAST is true, but not on 500', () => {
+    http
+      .post(
+        '/api/auth/register',
+        { username: 'user', password: 'password123' },
+        { context: new HttpContext().set(SUPPRESS_GATEWAY_ERROR_TOAST, true) }
+      )
+      .subscribe({ error: () => {} });
+
+    const gatewayReq = httpMock.expectOne('/api/auth/register');
+    gatewayReq.flush('Gateway Timeout', { status: 504, statusText: 'Gateway Timeout' });
+    expect(toastSpy.show).not.toHaveBeenCalled();
+
+    http
+      .post(
+        '/api/auth/register',
+        { username: 'user', password: 'password123' },
+        { context: new HttpContext().set(SUPPRESS_GATEWAY_ERROR_TOAST, true) }
+      )
+      .subscribe({ error: () => {} });
+
+    const serverErrorReq = httpMock.expectOne('/api/auth/register');
+    serverErrorReq.flush('Internal Server Error', { status: 500, statusText: 'Internal Server Error' });
+    expect(toastSpy.show).toHaveBeenCalledWith(
+      'Kunde inte nå servern just nu. Kontrollera din anslutning och försök igen.',
+      'danger'
+    );
   });
 });

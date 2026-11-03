@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { signal, WritableSignal } from '@angular/core';
 import { Router, provideRouter } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { LoginComponent } from './login.component';
+import { ApiWakeService } from '../../../core/api-wake.service';
 import { AuthService } from '../../../core/auth.service';
 import { ThemeService } from '../../../core/theme.service';
 import { AuthResponse } from '../../../core/models';
@@ -11,16 +13,19 @@ describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
   let authSpy: jasmine.SpyObj<AuthService>;
+  let isSlowWakeSignal: WritableSignal<boolean>;
   let router: Router;
 
   beforeEach(async () => {
     authSpy = jasmine.createSpyObj('AuthService', ['login']);
+    isSlowWakeSignal = signal(false);
 
     await TestBed.configureTestingModule({
       imports: [LoginComponent],
       providers: [
         provideRouter([]),
         { provide: AuthService, useValue: authSpy },
+        { provide: ApiWakeService, useValue: { isSlowWake: isSlowWakeSignal.asReadonly() } },
       ],
     }).compileComponents();
 
@@ -184,5 +189,15 @@ describe('LoginComponent', () => {
     expect(submitBtn.disabled).toBeTrue();
     expect(submitBtn.querySelector('.spinner-border')).toBeTruthy();
     expect(submitBtn.textContent).toContain('Loggar in…');
+  });
+
+  it('should display "Väcker servern…" text when logging in during a slow cold wake', () => {
+    isSlowWakeSignal.set(true);
+    component.isSubmitting.set(true);
+    fixture.detectChanges();
+
+    const submitBtn: HTMLButtonElement = fixture.nativeElement.querySelector('button[type="submit"]');
+    expect(submitBtn.disabled).toBeTrue();
+    expect(submitBtn.textContent).toContain('Väcker servern…');
   });
 });
